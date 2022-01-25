@@ -1,0 +1,9 @@
+[submodule "UI/src/Vendor/glm"]
+	path = UI/src/Vendor/glm
+	url = https://github.com/g-truc/glm
+[submodule "UI/vendor/glfw"]
+	path = UI/vendor/glfw
+	url = https://github.com/glfw/glfw
+[submodule "UI/vendor/spdlog"]
+	path = UI/vendor/spdlog
+	url = https://github.com/gabime/spdlog
