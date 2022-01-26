@@ -20,38 +20,46 @@ Hazel::rgba random_rgba() {
 	return Hazel::rgba(random_algo(),random_algo(),random_algo(),1.f);
 }
 
+Hazel::Application& CreateRandomWindows(unsigned char many_windows, Hazel::Application& app) 
+{
+	unsigned char many_windows_capped = many_windows;
+	many_windows_capped > 3 ? many_windows_capped = 3 : many_windows_capped;
+
+	for (size_t i = 0; i < many_windows_capped; i++)
+	{
+
+		auto& w = app.CreateWindow(std::to_string(i).c_str());
+		w.SetColor(random_rgba());
+
+		std::this_thread::sleep_for(Hazel::Time::seconds(0.5));
+		// TODO: Remover essa linha causa a thread de uma criação inicie junto com a de outro, causando problemas no Glad/GLFW;
+
+	}
+	return app;
+}
+
 int APP
 {
-	auto a0 = random_rgba();
-	auto a1 = random_rgba();
-	auto a2 = random_rgba();
-	auto a3 = random_rgba();
-	auto a4 = random_rgba();
+	using namespace Hazel;
+	{
+		tryStack<Dummy> stack;
+		{
+			auto& a = stack.Push("Gabriel");
+			stack.Push(a);
+			auto& b = stack.Push("Fabrizio");
+		}
+		auto& c = stack.Push("José");
+		auto& d = stack.Push("Kupa");
+		auto& e = stack.Push("Mercenários");
+	}
+
+
 
 	HZ_INIT_LOG;
 
 	Hazel::Application app;
 
-	auto& w1 = app.CreateWindow("Modesto");
-	w1.SetColor(random_rgba());
-
-	std::this_thread::sleep_for(Hazel::Time::seconds(0.5));
-	// TODO: Remover essa linha causa a thread do "Humildo" inicie junto com a do "Modesto", causando problemas no Glad/GLFW;
-
-	auto& w2 = app.CreateWindow("Humildo");
-	w2.SetColor(random_rgba());
-
-	std::this_thread::sleep_for(Hazel::Time::seconds(0.5));
-	// TODO: Remover essa linha causa a thread do app a checar por funções do Glad/GLFW mais rápido do que a janela do humildo se inicia;
-	
-	auto& w3 = app.CreateWindow("Humildo");
-	w3.SetColor(random_rgba());
-
-	std::this_thread::sleep_for(Hazel::Time::seconds(0.5));
-	// TODO: Remover essa linha causa a thread do app a checar por funções do Glad/GLFW mais rápido do que a janela do humildo se inicia;
-	
-	auto& w4 = app.CreateWindow("Humildo");
-	w4.SetColor(random_rgba());
+	CreateRandomWindows(6,app);
 
 	std::this_thread::sleep_for(Hazel::Time::seconds(0.5));
 	// TODO: Remover essa linha causa a thread do app a checar por funções do Glad/GLFW mais rápido do que a janela do humildo se inicia;

@@ -3,6 +3,16 @@
 
 namespace Hazel::Math {
 
+	template<typename T>
+	inline constexpr T PositiveModulo(const T a, const T b) 
+	{
+		if(b == 0) return 0;
+		int c;
+		a < 0 ? c = b - ( (a * T(-1)) % b ): c = a % b;
+		c %= b;
+		return c;
+	}
+
 	const float pi = glm::pi<float>();
 
 	using vec2 = glm::vec2;

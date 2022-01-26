@@ -9,7 +9,7 @@ namespace Hazel {
 	class Application {
 	public:
 		Application() = default;
-		~Application() = default;
+		~Application();
 		void Init();
 		void Shutdown();
 
@@ -18,17 +18,23 @@ namespace Hazel {
 		template<typename ... Args>
 		Window& CreateWindow(Args&& ... args)
 		{
-			Reference<Window> window = CreateReference<Window>(std::forward<Args>(args)...);
-			m_windows.push_back(window);
-			Reference<std::thread> worker = CreateReference<std::thread>([&window = *window](){ 
+
+			Window& window = m_windows.Push(std::forward<Args>(args)...);
+
+			Reference<std::thread> worker = CreateReference<std::thread>([&window = window](){ 
 				window.Init();
 				window.Run();
 			});
-			window->SetThread(worker);
-			return *window.get();
+
+			worker->detach();
+
+			window.SetThread(worker);
+
+			return window;
+
 		}
 	private:
-		std::vector<Reference<Window>> m_windows;
+		tryStack<Window> m_windows;
 	};
 
 }

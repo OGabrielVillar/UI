@@ -108,8 +108,6 @@ namespace Hazel {
 	}
 
 	void Window::Shutdown()
-	{
-		glfwTerminate();
-	}
+	{}
 
 }

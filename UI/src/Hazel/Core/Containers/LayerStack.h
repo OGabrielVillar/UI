@@ -3,8 +3,6 @@
 
 namespace Hazel::Containers {
 
-	using uint32_t = unsigned int;
-
 	template<typename T>
 	class layerstack {
 

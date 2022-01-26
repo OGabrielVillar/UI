@@ -3,6 +3,7 @@
 #include "Core/Flags.h"
 
 #include "Core/Containers/LayerStack.h"
+#include "Core/Containers/Stack.h"
 
 #include "Core/Math/MathCommon.h"
 #include "Core/Math/Random.h"
@@ -47,6 +48,13 @@ namespace Hazel {
 	
 	//Time
 		using namespace Time::Literals;
+		
+	//Containers
+		template <typename T>
+		using Stack = Containers::layerstack<T>;
+
+		template<typename T>
+		using tryStack = Containers::Stack<T>;
 
 	// Pointers
 		template<typename T>
