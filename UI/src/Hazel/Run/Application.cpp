@@ -18,23 +18,25 @@ namespace Hazel
 		bool running = true;
 		HZ_TRACE("app checking...");
 		while(running) {
-
+			
+			Timer timer;
 			// Check Windows Lifetime
-			for (Window& window : m_windows){
-				if (!window.IsAlive())
+			for (auto window : m_windows){
+				if (!window->IsAlive())
 				{
-					m_windows.DeleteCurrent();
+					window.Delete();
 				HZ_TRACE("Window Deleted!");
 				}
 			}
 
 			if (m_windows.IsEmpty()) {
 				HZ_INFO("ALL WINDOWS WERE CLOSED...\n  QUITTING PROGRAM...");
+				std::cin.get();
+				running = false;
 			} else {
-				HZ_TRACE(" ... ");
+				std::cout << "... " << Time::milliseconds(timer.update()) << std::endl;
+				std::this_thread::sleep_for(2.5_seconds);
 			}
-
-			std::this_thread::sleep_for(2.5_seconds);
 
 		}
 

@@ -52,6 +52,8 @@
 
 #if _DEBUG
 	#define _CONSOLEAPP TRUE
+#elif _RELEASE
+	#define _CONSOLEAPP TRUE
 #else
 	#define _WINDOWEDAPP TRUE
 #endif

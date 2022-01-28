@@ -59,7 +59,7 @@ project "UI"
 		symbols "on"
 
 	filter "configurations:Release"
-		kind "WindowedApp"
+		kind "ConsoleApp"
 		defines "_RELEASE"
 		runtime "Release"
 		optimize "on"

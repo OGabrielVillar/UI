@@ -23,7 +23,7 @@ Hazel::rgba random_rgba() {
 Hazel::Application& CreateRandomWindows(unsigned char many_windows, Hazel::Application& app) 
 {
 	unsigned char many_windows_capped = many_windows;
-	many_windows_capped > 3 ? many_windows_capped = 3 : many_windows_capped;
+	many_windows_capped > 8 ? many_windows_capped = 3 : many_windows_capped;
 
 	for (size_t i = 0; i < many_windows_capped; i++)
 	{
@@ -41,28 +41,14 @@ Hazel::Application& CreateRandomWindows(unsigned char many_windows, Hazel::Appli
 int APP
 {
 	using namespace Hazel;
-	{
-		tryStack<Dummy> stack;
-		{
-			auto& a = stack.Push("Gabriel");
-			stack.Push(a);
-			auto& b = stack.Push("Fabrizio");
-		}
-		auto& c = stack.Push("José");
-		auto& d = stack.Push("Kupa");
-		auto& e = stack.Push("Mercenários");
-	}
-
-
 
 	HZ_INIT_LOG;
 
 	Hazel::Application app;
-
-	CreateRandomWindows(6,app);
+	
+	auto& window0 = app.CreateWindow("Hazel");
 
 	std::this_thread::sleep_for(Hazel::Time::seconds(0.5));
-	// TODO: Remover essa linha causa a thread do app a checar por funções do Glad/GLFW mais rápido do que a janela do humildo se inicia;
 
 	app.Run();
 }

@@ -9,6 +9,7 @@
 #include "Core/Math/Random.h"
 
 #include "Core/Time/TimeCommon.h"
+#include "Core/Time/Timer.h"
 
 #include "Core/Geometry/Angle.h"
 #include "Core/Geometry/Rect.h"
@@ -48,6 +49,7 @@ namespace Hazel {
 	
 	//Time
 		using namespace Time::Literals;
+		using Time::Timer;
 		
 	//Containers
 		template <typename T>

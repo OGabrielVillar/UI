@@ -19,26 +19,108 @@ namespace Hazel::Containers {
 		
  /////////////////////////////////////////////////////////////////////////
 
+	 private: // ---------- [Needle] ----------
+		struct Needle {
+			// the needle is the tool that PtrsList uses to make his actions.
+
+			Needle(type**& list_start, const capacity_type& capacity, const capacity_type& obj_amount, const capacity_type& last_obj)
+			  : m_needle(list_start),
+				r_list_start(list_start),
+				m_index(0),
+				r_capacity(capacity),
+				r_last_obj(last_obj),
+				r_obj_amount(obj_amount)
+			{}
+			Needle(const Needle& other)
+			  : m_needle(other.r_list_start),
+				r_list_start(other.r_list_start),
+				m_index(0),
+				r_capacity(other.r_capacity),
+				r_last_obj(other.r_last_obj),
+				r_obj_amount(other.r_obj_amount)
+			{}
+			capacity_type Index() const { return m_index; } 
+			type** operator()(){ return m_needle; }
+			type** Current() const { 
+				return m_needle; 
+			}
+			type** Start() { 
+				m_needle = r_list_start; 
+				m_index = 0; 
+				return m_needle; 
+			}
+			type** End() { 
+				Start();
+				return Previous(); 
+			}
+			type** At(capacity_type index) { 
+				if (!r_capacity) return m_needle; // avoiding modulo by 0
+				m_index = index;
+				m_index %= r_capacity;
+				m_needle = r_list_start + m_index;
+				return m_needle; 
+			}
+			type** Next() { 
+				if (!r_capacity) return m_needle; // avoiding modulo by 0
+				m_index++;
+				m_index %= r_capacity;
+				m_needle = r_list_start + m_index;
+				return m_needle; 
+			}
+			type** Previous() { 
+				m_index--;
+				m_index = Math::PositiveModulo(m_index,r_capacity);
+				m_needle = r_list_start + m_index;
+				return m_needle; 
+			}
+			type** LastObj() { 
+				m_index = r_last_obj; 
+				m_needle = r_list_start + m_index;
+				return m_needle;  
+			}
+			type** NextObj() { 
+				do Next();
+				while(*m_needle == nullptr && r_obj_amount);
+				return m_needle; 
+			}
+			type** PreviousObj() { 
+				do Previous();
+				while(*m_needle == nullptr && r_obj_amount);
+				return m_needle; 
+			}
+
+			// my own
+			type** m_needle = nullptr;
+			capacity_type m_index = 0;
+			// references
+			type**& r_list_start = nullptr;
+			const capacity_type& r_last_obj;
+			const capacity_type& r_capacity;
+			const capacity_type& r_obj_amount;
+		};
+
+ /////////////////////////////////////////////////////////////////////////
+
 	 private: // ---------- [Pointers List] ----------
-		struct PtrsList { 
+		class PtrsList { 
 
 		 public:
 			PtrsList() = default;
 			~PtrsList() { 
-				First();
+				needle.Start();
 				while(!IsEmpty()) {
-					delete *needle;
-					//room++;
-					nullptrs_amount++;
-					NextObj();
+					delete *needle();
+					obj_amount--;
+					needle.NextObj();
 				}
-				delete[] m_ptrs; 
+				delete[] m_list_start; 
 			}
 			PtrsList(capacity_type capacity)
-				: m_ptrs(new type*[capacity](nullptr)), 
-				m_capacity(capacity), 
-				nullptrs_amount(capacity),
-				room(capacity)
+			  : m_list_start(new type*[capacity](nullptr)), 
+				m_list_holder(new type*[capacity](nullptr)), 
+				m_capacity(capacity),
+				room(capacity),
+				needle(m_list_start, m_capacity, obj_amount, last_obj_index)
 			{}
 			PtrsList(const PtrsList&) = delete;
 			PtrsList& operator=(const PtrsList&) = delete;
@@ -47,32 +129,64 @@ namespace Hazel::Containers {
 			 
 			void Reserve(capacity_type amount);
 			bool IsEmpty() { 
-				return (m_capacity == nullptrs_amount); 
+				return (obj_amount == 0); 
+			}
+			
+			void ClearNullptrs() 
+			{
+			 //Start index will be zero.
+				start_index = 0;
+			 //All nullptrs will be dealocated to the end(room).
+				room = m_capacity - obj_amount;
+
+			 //If there is no object, return.
+				if (IsEmpty()) {
+					last_obj_index = 0;
+					return;
+				}
+
+			 //Calculate last_obj_index.
+				last_obj_index = obj_amount - 1;
+
+			 //Transfer all the objects pointers to the holder, setting needle to nullptr in the process.
+				needle.Start();
+				type** holder = m_list_holder;
+				do {
+					if (*needle() != nullptr) {
+						*holder = *needle();
+						*needle() = nullptr;
+						holder++;
+					}
+					needle.Next();
+				} while ( needle.Index() != start_index );
+
+			 //Swap m_list_holder and m_list_start.
+				type** h = m_list_start;
+				m_list_start = m_list_holder;
+				m_list_holder = h;
+
+				need_cleaning = false;
 			}
 
 			bool Delete() {
-				if (*needle != nullptr)  {
-					delete *needle;
-					room++;
-					nullptrs_amount++;
-					*needle = nullptr;
+				if (*needle() != nullptr)  {
+					delete *needle();
+					*needle() = nullptr;
+					obj_amount--;
 
 					if (IsEmpty()) {
 						start_index = 0;
 						last_obj_index = 0;
-
-					} else {
-						if (needle_index == last_obj_index){
-							PreviousObj();
-							last_obj_index = needle_index;
-						
-						} else if (needle_index == start_index)
-							ShiftCycleBy(1);
 					}
-
+					need_cleaning = true;
 					return true;
 				}
 				return false;
+			}
+
+			bool Delete(capacity_type index) {
+				needle.At(index);
+				return Delete();
 			}
 
 			template <PushMethod method>
@@ -102,31 +216,23 @@ namespace Hazel::Containers {
 
 			}
 
-			PtrsList& begin() { 
-				*First(); return *this; 
-			}
-			PtrsList& end() { 
-				*LastObj(); return *this; 
-			}
-
 			void Track(type* object, PushMethod method) {
-
-				capacity_type hold_needle_index = needle_index;
 
 				switch (method) {
 					case Over:
 						if (room == 0) break; //TODO: MakeRoom
-						LastObj();
-						if (*needle != nullptr)
-							Next();
+						needle.LastObj();
+						if (*needle() != nullptr)
+							needle.Next();
 						TrackIn(object);
-						last_obj_index = needle_index;
+						room--;
+						last_obj_index = needle.Index();
 					break;
 					case Under:
 						if (room == 0) break; //TODO: MakeRoom
-							First();
-							if (*needle != nullptr)
-								Previous();
+							needle.Start();
+							if (*needle() != nullptr)
+								needle.Previous();
 							TrackIn(object);
 					break;
 					case OverCurrent:
@@ -137,145 +243,121 @@ namespace Hazel::Containers {
 					break;
 				}
 
-				At(needle_index);
-
 			}
 
 			void TrackIn(type* object) {
-				*needle = object;
-				room--;
-				nullptrs_amount--;
+				*needle() = object;
+				obj_amount++;
 			}
 
-			void ShiftCycleBy(int shift_amount) {
-				if (shift_amount == 0) return;
-				if (shift_amount > 0) {
-					start_index %= (int)m_capacity;
-					last_obj_index %= (int)m_capacity;
-					needle_index %= (int)m_capacity;
-				} else {
-					start_index = Math::PositiveModulo(shift_amount + (int)start_index, (int)m_capacity);
-					last_obj_index = Math::PositiveModulo(shift_amount + (int)last_obj_index, (int)m_capacity);
-					needle_index = Math::PositiveModulo(shift_amount + (int)needle_index, (int)m_capacity);
-				}
-			}
-
-		 //Needle Functions
-			type** Current() { 
-				return needle; 
-			}
-			type** At(capacity_type index) { 
-				if (!m_capacity) return needle;
-				needle_index = start_index;
-				needle_index += index;
-				needle_index %= m_capacity;
-				needle = m_ptrs + needle_index; 
-				return needle; 
-			}
-			type** First() { 
-				needle = m_ptrs + start_index; 
-				needle_index = start_index; 
-				return needle; 
-			}
-			type** Last() { 
-				First();
-				return Previous(); 
-			}
-			type** Next() { 
-				if (!m_capacity) return needle;
-				needle_index++;
-				needle_index %= m_capacity;
-				needle = m_ptrs + needle_index;
-				return needle; 
-			}
-			type** Previous() { 
-				needle_index--;
-				needle_index = Math::PositiveModulo(needle_index,m_capacity);
-				needle = m_ptrs + needle_index;
-				return needle; 
-			}
-			type** LastObj() { 
-				needle = m_ptrs + last_obj_index; 
-				needle_index = last_obj_index;  
-				return needle; 
-			}
-			type** NextObj() { 
-				do Next();
-				while(*needle == nullptr && !IsEmpty());
-				return needle; 
-			}
-			type** PreviousObj() { 
-				do Previous();
-				while(*needle == nullptr && !IsEmpty());
-				return needle; 
-			}
-
-		 private: // Members
-			// the array of pointers
-			type** m_ptrs = nullptr;
-			capacity_type m_capacity = 0;
+			//void ShiftCycleBy(int shift_amount) {
+			//	if (shift_amount == 0) return;
+			//	if (shift_amount > 0) {
+			//		start_index %= (int)m_capacity;
+			//		last_obj_index %= (int)m_capacity;
+			//		//needle_index %= (int)m_capacity;
+			//	} else {
+			//		start_index = Math::PositiveModulo(shift_amount + (int)start_index, (int)m_capacity);
+			//		last_obj_index = Math::PositiveModulo(shift_amount + (int)last_obj_index, (int)m_capacity);
+			//		//needle_index = Math::PositiveModulo(shift_amount + (int)needle_index, (int)m_capacity);
+			//	}
+			//}
 			
-			// The Needle is the tool that PtrsList uses to make his actions.
-			type** needle = nullptr;
+		 //Iterator Functions
+			
+			const Needle& AttachIterator() {
+				active_iterators++;
+				return needle;
+			}
+			void DetachIterator() {
+				active_iterators--;
+				if (active_iterators == 0 && need_cleaning)
+					ClearNullptrs();
+
+			}
+
+		 private: // PtrsList Members
+			// the array of pointers
+			type** m_list_start = nullptr;
+			type** m_list_holder = nullptr;
+			capacity_type m_capacity = 0;
 
 			// indices to keep track
 			capacity_type start_index = 0;
 			capacity_type last_obj_index = 0;
-			capacity_type needle_index = 0;
 
 			// empty spaces
 			capacity_type room = 0;
-			capacity_type nullptrs_amount = 0;
+			capacity_type obj_amount = 0;
+			bool need_cleaning = false;
+
+			Needle needle;
+			
+			// iterators amount
+			uint16_t active_iterators = 0;
+		};
+
+ /////////////////////////////////////////////////////////////////////////
+
+	 public: // ---------- [Stack Interface] ----------
+		struct Interface {
+		 public:
+			Interface(PtrsList& list, capacity_type index, type* obj)
+			  : m_obj(obj),
+				m_index(index),
+				m_list(list)
+			{}
+			operator type&(){
+				return *m_obj;
+			}
+			type* operator->() const {
+				return m_obj;
+			}
+			type& operator*() const {
+				return *m_obj;
+			}
+			void Delete(){
+				m_list.Delete(m_index);
+			}
+		 private:
+			type* m_obj = nullptr;
+			capacity_type m_index = 0;
+			PtrsList& m_list;
 		};
 
  /////////////////////////////////////////////////////////////////////////
 		
 	 private: // ---------- [Iterator] ----------
-		 
+
 		class _stack_iterator {
 		public:
 			_stack_iterator(PtrsList& list)
-			  : m_list(list), 
-				m_index(list.CurrentIndex()),
-				m_name(name),
+			  : m_list(list),
+				needle(m_list.AttachIterator())
 			{}
+			~_stack_iterator()	
+			{
+				m_list.DetachIterator();
+			}
 			_stack_iterator& operator++() {
-				obj = *m_list.NextObj();
+				if (needle.r_obj_amount == 0) return *this;
+				do {
+					m_progress++;
+					needle.Next();
+				} while(*needle() == nullptr);
 				return *this;
 			}
-			_stack_iterator operator++(int) {
-				return _stack_iterator(m_list); //TODO
+			Interface operator*() {
+				return Interface(m_list, needle.Index(), *needle());
 			}
-			_stack_iterator& operator--() {
-				obj = *m_list.PreviousObj();
-				return *this;
-			}
-			_stack_iterator operator--(int) {
-				return _stack_iterator(m_list); //TODO
-			}
-			_stack_iterator operator[](int index) {
-				return **(m_list.At(index));
-			}
-			ReferenceType operator*() {
-				return **(m_list.Current());
-			}
-			bool operator==(const _stack_iterator& other) const {
-				return needle_holder == other.needle_holder;
-			}
-			bool operator!=(const _stack_iterator& other) const {
-				return needle_holder != other.needle_holder;
-			}
-			
-			bool operator==(const _last_iterator& other) const {
-				return needle_holder == other.needle_holder;
-			}
-			bool operator!=(const _last_iterator& other) const {
-				return needle_holder != other.needle_holder;
+			bool operator!=(bool) const {
+				return (m_progress < needle.r_capacity && *(needle.Current()) != nullptr);
 			}
 
 		private:
 			PtrsList& m_list;
-			capacity_type m_index;//TODO: Rever o método de interação
+			Needle needle;
+			capacity_type m_progress = 0;
 		};
 		
  /////////////////////////////////////////////////////////////////////////
@@ -285,7 +367,7 @@ namespace Hazel::Containers {
 		using Iterator = _stack_iterator;
 		 
 		Stack()
-		  : m_list(5)
+		  : m_list(50)
 		{}
 
 		void Reserve(capacity_type amount) {
@@ -295,7 +377,7 @@ namespace Hazel::Containers {
 			return m_list.IsEmpty();
 		}
 
-		bool DeleteCurrent() { return m_list.Delete(); }
+		//bool DeleteCurrent() { return m_list.Delete(); }
 
 		template <PushMethod method = Over>
 		type& Push(const type& other) {
@@ -312,13 +394,9 @@ namespace Hazel::Containers {
 			return m_list.Push<method>(std::forward<Args>(args) ...);
 		}
 
-		Iterator begin() {
-			return Iterator(m_list.begin());
-		}
-		
-		Iterator end() {
-			return Iterator(m_list.end());
-		}
+		// To iterate thru objects
+		Iterator begin() { return Iterator(m_list);	}
+		bool end() { return true; }
 
 	private:
 		PtrsList m_list;
