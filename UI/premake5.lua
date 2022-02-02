@@ -64,6 +64,11 @@ project "UI"
 		runtime "Release"
 		optimize "on"
 
+	filter { "configurations:Release", "system:windows" }
+		postbuildcommands {
+			"xcopy /y /i $(TargetDir)$(TargetFileName) $(SolutionDir)exe\\"
+		}
+
 	filter "configurations:Dist"
 		kind "WindowedApp"
 		defines "_DIST"

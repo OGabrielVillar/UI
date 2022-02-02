@@ -2,56 +2,49 @@
 
 #include "Window.h"
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "Log.h"
+#include "Graphics/Platform/OpenGL/OpenGLRenderingContext.h"
 
 namespace Hazel {
 
 	Window::Window()
-	{
-		//Init();
-	}
+	{}
 
 	Window::Window(std::string&& name)
 		: m_name(name)
-	{
-		//Init();
-	}
+	{}
 
 	Window::~Window()
 	{
-		Shutdown();
+		HZ_WIN_TRACE(" ... Destructed!");
 	}
 
 	void Window::Init()
 	{
-		HZ_WARN("Creating Window...");
+		HZ_WIN_TRACE("Initializing ... ");
 
 		/* Initialize the library */
 		if (!glfwInit())
 			return;
 
 		// Remove TitleBar
-		//glfwWindowHint(GLFW_DECORATED, false);
+		glfwWindowHint(GLFW_DECORATED, false);
 
 		//Transparent Window?
-		//glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, true);
+		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, true);
 
 		/* Create a windowed mode window and its OpenGL context */
 		m_window = glfwCreateWindow(m_rect.width, m_rect.height, m_name.c_str(), NULL, NULL);
-		
-		/* Make the window's context current */
-		glfwMakeContextCurrent(m_window);
-		
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		HZ_ASSERT(!status,"Failed to load Grad!");
 
+		m_context = CreateReference<OpenGLRenderingContext>(m_window);
+		m_context->Init();
+		
+		// Move window
 		int monitor_width, monitor_height;
 		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), nullptr, nullptr, &monitor_width, &monitor_height);
 
-		// Move Window
 		glfwSetWindowPos(m_window,
 			(monitor_width / 2) - (m_rect.width / 2),
 			(monitor_height / 2) - (m_rect.height / 2));
@@ -64,27 +57,15 @@ namespace Hazel {
 
 	}
 
+	void Window::Run()
+	{
+		glfwPollEvents();
+		m_context->SwapBuffers();
+	}
+	
 	void Window::SetSize(int width, int height)
 	{
 		glfwSetWindowSize(m_window, width, height);
-	}
-
-	void Window::Run()
-	{
-		/* Loop until the user closes the window */
-		while (!glfwWindowShouldClose(m_window))
-		{
-
-			glfwPollEvents();
-
-			glClearColor(m_color.r,m_color.g,m_color.b, 1.0f);
-
-			glClear(GL_COLOR_BUFFER_BIT);
-
-			glfwSwapBuffers(m_window);
-
-		}
-
 	}
 
 	void Window::Minimize()
@@ -106,8 +87,5 @@ namespace Hazel {
 	{
 		glfwSetWindowShouldClose(m_window,true);
 	}
-
-	void Window::Shutdown()
-	{}
 
 }

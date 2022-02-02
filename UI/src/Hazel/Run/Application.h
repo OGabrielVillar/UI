@@ -8,33 +8,42 @@ namespace Hazel {
 
 	class Application {
 	public:
-		Application() = default;
+		Application();
 		~Application();
+
 		void Init();
-		void Shutdown();
 
 		void Run();
+		bool CheckWindowsLifetime();
 
-		template<typename ... Args>
-		Window& CreateWindow(Args&& ... args)
+		/*template<typename ... Args>
+		Window& CreateWindowInOtherThread(Args&& ... args)
 		{
-
+			// Defining conditioning variable(cv) for the main thread to wait for window to initialize;
+			ThreadLock initialization;
+			
+			// Creating new window
 			Window& window = m_windows.Push(std::forward<Args>(args)...);
-
-			Reference<std::thread> worker = CreateReference<std::thread>([&window = window](){ 
+			
+			// Initializing and looping in a separated thread
+			std::thread& worker = *(new std::thread([&window,&initialization](){ 
 				window.Init();
+				initialization.True();
 				window.Run();
-			});
+			}));
+			worker.detach();
 
-			worker->detach();
+			// Waiting for the window initialization
+			initialization.Wait();
 
-			window.SetThread(worker);
+			//window.SetThread(worker);
 
 			return window;
-
 		}
+		Stack<Window> m_windows;*/
 	private:
-		tryStack<Window> m_windows;
+		Timer m_dt;
+		Reference<Window> m_Window;
 	};
 
 }

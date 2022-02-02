@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Core/Flags.h"
+#include "Core/ThreadLock.h"
 
-#include "Core/Containers/LayerStack.h"
+#include "Core/Data/Buffer.h"
+
 #include "Core/Containers/Stack.h"
 
 #include "Core/Math/MathCommon.h"
@@ -20,6 +22,13 @@ namespace Hazel {
 	
 	// [Definitions]
 	
+	// Data
+		template <unsigned int size, typename type>
+		using Buffer = Data::Buffer<size,type>;
+		
+	//Containers
+		template <typename T>
+		using Stack = Containers::Stack<T>;
 	// Text
 		using string = std::string;
 
@@ -50,13 +59,6 @@ namespace Hazel {
 	//Time
 		using namespace Time::Literals;
 		using Time::Timer;
-		
-	//Containers
-		template <typename T>
-		using Stack = Containers::layerstack<T>;
-
-		template<typename T>
-		using tryStack = Containers::Stack<T>;
 
 	// Pointers
 		template<typename T>

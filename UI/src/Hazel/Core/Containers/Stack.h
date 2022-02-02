@@ -68,8 +68,7 @@ namespace Hazel::Containers {
 				return m_needle; 
 			}
 			type** Previous() { 
-				m_index--;
-				m_index = Math::PositiveModulo(m_index,r_capacity);
+				m_index = (capacity_type)Math::PositiveModulo(int(m_index) -1,(int)r_capacity);
 				m_needle = r_list_start + m_index;
 				return m_needle; 
 			}
@@ -330,11 +329,13 @@ namespace Hazel::Containers {
 	 private: // ---------- [Iterator] ----------
 
 		class _stack_iterator {
-		public:
+		 public:
 			_stack_iterator(PtrsList& list)
 			  : m_list(list),
 				needle(m_list.AttachIterator())
-			{}
+			{
+				needle.Start();
+			}
 			~_stack_iterator()	
 			{
 				m_list.DetachIterator();
@@ -354,7 +355,44 @@ namespace Hazel::Containers {
 				return (m_progress < needle.r_capacity && *(needle.Current()) != nullptr);
 			}
 
-		private:
+		 private:
+			PtrsList& m_list;
+			Needle needle;
+			capacity_type m_progress = 0;
+		};
+
+ /////////////////////////////////////////////////////////////////////////
+		
+	 private: // ---------- [Reverse Iterator] ----------
+
+		class _stack_reverse_iterator {
+		 public:
+			_stack_reverse_iterator(PtrsList& list)
+			  : m_list(list),
+				needle(m_list.AttachIterator())
+			{
+				needle.End();
+			}
+			~_stack_reverse_iterator()	
+			{
+				m_list.DetachIterator();
+			}
+			_stack_reverse_iterator& operator++() {
+				if (needle.r_obj_amount == 0) return *this;
+				do {
+					m_progress++;
+					needle.Previous();
+				} while(*needle() == nullptr);
+				return *this;
+			}
+			Interface operator*() {
+				return Interface(m_list, needle.Index(), *needle());
+			}
+			bool operator!=(bool) const {
+				return (m_progress < needle.r_capacity && *(needle.Current()) != nullptr);
+			}
+
+		 private:
 			PtrsList& m_list;
 			Needle needle;
 			capacity_type m_progress = 0;
@@ -362,12 +400,25 @@ namespace Hazel::Containers {
 		
  /////////////////////////////////////////////////////////////////////////
 
+	 public: // ---------- [Reverse Stack] ----------
+		class ReversedStack {
+		 public:
+			ReversedStack() = delete;
+			_stack_reverse_iterator begin() { return _stack_reverse_iterator(((Stack*)this)->m_list); }
+			bool end() { return true; }
+		 private:
+			Stack stack;
+		};
+
+		
+ /////////////////////////////////////////////////////////////////////////
+
 	 public:// -------------------- [STACK] --------------------
 		
 		using Iterator = _stack_iterator;
-		 
-		Stack()
-		  : m_list(50)
+		
+		Stack(int size = 100)
+		  : m_list(size)
 		{}
 
 		void Reserve(capacity_type amount) {
@@ -377,7 +428,7 @@ namespace Hazel::Containers {
 			return m_list.IsEmpty();
 		}
 
-		//bool DeleteCurrent() { return m_list.Delete(); }
+		ReversedStack& Reverse() { return *((ReversedStack*)this); }
 
 		template <PushMethod method = Over>
 		type& Push(const type& other) {

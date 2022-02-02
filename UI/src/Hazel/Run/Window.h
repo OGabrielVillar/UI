@@ -5,6 +5,8 @@
 
 #include "core.h"
 
+#include "../Graphics/Renderer/RenderingContext.h"
+
 namespace Hazel {
 
 	class Window {
@@ -27,16 +29,17 @@ namespace Hazel {
 		void SetSize(int width, int height);
 
 		void SetName(std::string&& name) { m_name = name; }
-		void SetColor(const vec4& color) { m_color = color; }
-		void SetThread(Reference<std::thread> thread) { m_thread = thread; }
-		std::thread& GetThread() { return *m_thread; }
+		void SetColor(const vec4& color) { m_context->SetColor(color); }
 	private:
-		GLFWwindow* m_window;
+		GLFWwindow* m_window = nullptr;
+		Reference<RenderingContext> m_context = nullptr;
 		std::string m_name;
-		intRect m_rect = { 0,0,174*8,100*8 };
-		Reference<std::thread> m_thread = nullptr;
+		std::string m_thread_id;
+		//intRect m_rect = { 0,0,174*8,100*8 };
+		intRect m_rect = { 0,0,1280,720 };
+		//intRect m_rect = { 0,0,1920,1080 };
 
-		vec4 m_color = {.99f,.8f,.85f, 1.0f};
+		ThreadLock m_inert;
 	};
 
 }

@@ -4,6 +4,7 @@
 
 #include "Log.h"
 #include "Application.h"
+#include "Graphics/Renderer/BufferLayout.h"
 
 #if _CONSOLEAPP
 	#define APP main()
@@ -20,35 +21,24 @@ Hazel::rgba random_rgba() {
 	return Hazel::rgba(random_algo(),random_algo(),random_algo(),1.f);
 }
 
-Hazel::Application& CreateRandomWindows(unsigned char many_windows, Hazel::Application& app) 
-{
-	unsigned char many_windows_capped = many_windows;
-	many_windows_capped > 8 ? many_windows_capped = 3 : many_windows_capped;
+struct Vertex {
+	float x,y,z;
+};
 
-	for (size_t i = 0; i < many_windows_capped; i++)
-	{
 
-		auto& w = app.CreateWindow(std::to_string(i).c_str());
-		w.SetColor(random_rgba());
-
-		std::this_thread::sleep_for(Hazel::Time::seconds(0.5));
-		// TODO: Remover essa linha causa a thread de uma criação inicie junto com a de outro, causando problemas no Glad/GLFW;
-
-	}
-	return app;
+template <class _CharT, class _Traits>
+std::basic_ostream<_CharT, _Traits>& operator<<(
+    std::basic_ostream<_CharT, _Traits>& _Os, const Vertex& vertex) {
+    return _Os << "[x:" << vertex.x << " y:" << vertex.y << " z:" << vertex.z << "]";
 }
 
-int APP
+int APP 
 {
 	using namespace Hazel;
 
 	HZ_INIT_LOG;
-
 	Hazel::Application app;
-	
-	auto& window0 = app.CreateWindow("Hazel");
-
-	std::this_thread::sleep_for(Hazel::Time::seconds(0.5));
 
 	app.Run();
+
 }
