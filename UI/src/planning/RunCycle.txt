@@ -1,0 +1,15 @@
+
+Aplication
+
+Window {
+
+	Run() {
+		SubmitInputs(m_Scene);
+		m_Scene->Run();
+		Renderer->Sumit(m_Scene);
+	}
+
+}
+
+What is a scene:
+	The set of entities that interacts;

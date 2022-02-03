@@ -19,6 +19,7 @@ namespace Hazel {
 	Window::~Window()
 	{
 		HZ_WIN_TRACE(" ... Destructed!");
+		glfwTerminate();
 	}
 
 	void Window::Init()

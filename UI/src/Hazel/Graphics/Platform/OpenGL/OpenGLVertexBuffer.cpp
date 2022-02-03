@@ -8,7 +8,8 @@ namespace Hazel
 	
 	// ---- VERTEX BUFFER ----
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(float* data, uint32_t size)
+	OpenGLVertexBuffer::OpenGLVertexBuffer(float* data, uint32_t size, Reference<BufferLayout>& layout)
+		: m_Layout(layout)
 	{
 		glCreateBuffers(1, &m_RenderingID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_RenderingID);

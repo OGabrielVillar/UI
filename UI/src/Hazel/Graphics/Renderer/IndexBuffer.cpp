@@ -9,15 +9,15 @@
 
 namespace Hazel {
 	
-	IndexBuffer* IndexBuffer::Create(uint32_t* data, uint32_t size)
+	Reference<IndexBuffer> IndexBuffer::Create(uint32_t* data, uint32_t size)
 	{
 		switch(Renderer::API())
 		{
-		case RendererAPI::None:   HZ_ASSERT(false, "VertexBuffer::Create: RendererAP::None not suported!") return nullptr;
-		case RendererAPI::OpenGL: return new OpenGLIndexBuffer(data,size);
+		case RendererAPI::None:   HZ_ASSERT(false, "IndexBuffer::Create: RendererAP::None not suported!") return nullptr;
+		case RendererAPI::OpenGL: return CreateReference<OpenGLIndexBuffer>(data,size);
 		}
 
-		HZ_ASSERT(false, "VertexBuffer::Create: Unkown Renderer::API!")
+		HZ_ASSERT(false, "IndexBuffer::Create: Unkown Renderer::API!")
 		return nullptr;
 	}
 

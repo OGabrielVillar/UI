@@ -50,7 +50,7 @@ namespace Hazel {
 		uint32_t Offset;
 		bool Normalized;
 
-		BufferLayoutElement() {}
+		BufferLayoutElement() = default;
 		BufferLayoutElement(BufferLayoutDataType type, const std::string& name, bool normalized = false) 
 			: Name(name), Type(type), SizeCount(SizeCountOf(type)), Offset(0), Normalized(normalized)
 		{}
@@ -62,20 +62,28 @@ namespace Hazel {
 
 	class BufferLayout {
 	 public:
-		BufferLayout() {}
+		BufferLayout() = default;
 		BufferLayout(const std::initializer_list<BufferLayoutElement>& elements)
 			: m_Elements(elements)
 		{
 			CalculateOffsetAndStride();
 		}
+		//template<typename >
+		//BufferLayout(const std::initializer_list<BufferLayoutElement>& elements)
+		//	: m_Elements(elements)
+		//{
+		//	CalculateOffsetAndStride();
+		//}
 
 		inline const std::vector<BufferLayoutElement>& GetElements() const { return m_Elements; };
+		inline uint32_t GetStride() const { return m_Stride; }
 
 		using Iterator = std::vector<BufferLayoutElement>::iterator;
+		using ConstIterator = std::vector<BufferLayoutElement>::const_iterator;
 		Iterator begin() { return m_Elements.begin(); }
 		Iterator end() { return m_Elements.end(); }
-		uint32_t GetStride() const { return m_Stride; }
-
+		ConstIterator begin() const { return m_Elements.begin(); }
+		ConstIterator end() const { return m_Elements.end(); }
 	private:
 		void CalculateOffsetAndStride() {
 			m_Stride = 0;
@@ -89,7 +97,7 @@ namespace Hazel {
 
 	 private:
 		std::vector<BufferLayoutElement> m_Elements;
-		uint32_t m_Stride;
+		uint32_t m_Stride = 0;
 	};
 
 }

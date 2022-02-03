@@ -1,0 +1,15 @@
+scene "editor" {
+    world {
+    
+    }
+    scene {
+        ui layer {
+        }
+        camera system
+    }
+    ui layer {
+	
+    }
+    scripts {
+    }
+}

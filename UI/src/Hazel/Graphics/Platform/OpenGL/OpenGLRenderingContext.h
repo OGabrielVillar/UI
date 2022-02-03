@@ -2,9 +2,10 @@
 
 #include "core.h"
 #include "Graphics/Renderer/Shader.h"
-#include "../../Renderer/RenderingContext.h"
-#include "../../Renderer/VertexBuffer.h"
-#include "../../Renderer/IndexBuffer.h"
+#include "Graphics/Renderer/RenderingContext.h"
+#include "Graphics/Renderer/VertexBuffer.h"
+#include "Graphics/Renderer/IndexBuffer.h"
+#include "Graphics/Renderer/VertexArray.h"
 
 struct GLFWwindow;
 
@@ -28,10 +29,11 @@ namespace Hazel {
 		void InitShit();
 		void TestShit();
 	private:// Shit
-		unsigned int m_VertexArray;
-		Scope<Shader> m_Shader;
-		Scope<VertexBuffer> m_VertexBuffer;
-		Scope<IndexBuffer> m_IndexBuffer;
+		Reference<Shader> m_Shader;
+		Reference<VertexArray> m_VertexArray;
+
+		Reference<Shader> m_SquareShader;
+		Reference<VertexArray> m_SquareVA;
 	};
 
 }
