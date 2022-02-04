@@ -1,0 +1,20 @@
+
+
+project "Hazel Editor" {
+	layer "Editor Layer" {}
+	ui "Editor UI" {}
+	create/open/close ...
+	...project "Game Project" {
+		add...
+		...layer "Game Layer" {}
+		...ui "Game UI" {}
+		...scene "Game Scene" {
+			camera system
+		}
+		...world {
+    
+		}
+		...scripts {
+		}
+	}
+}

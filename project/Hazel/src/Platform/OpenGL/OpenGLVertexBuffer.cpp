@@ -1,0 +1,40 @@
+#include "pch.h"
+#include "OpenGLVertexBuffer.h"
+
+#include <glad/glad.h>
+
+namespace Hazel 
+{
+	
+	// ---- VERTEX BUFFER ----
+
+	OpenGLVertexBuffer::OpenGLVertexBuffer(float* data, uint32_t size, Reference<BufferLayout>& layout)
+		: m_Layout(layout)
+	{
+		glCreateBuffers(1, &m_RenderingID);
+		glBindBuffer(GL_ARRAY_BUFFER, m_RenderingID);
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+	}
+
+	OpenGLVertexBuffer::~OpenGLVertexBuffer()
+	{
+		glDeleteBuffers(1, &m_RenderingID);
+	}
+
+	void OpenGLVertexBuffer::Bind() const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_RenderingID);
+	}
+
+	void OpenGLVertexBuffer::Unbind() const
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+
+	void OpenGLVertexBuffer::ChangeBufferData(float* data, unsigned int size)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, m_RenderingID);
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+	}
+
+}

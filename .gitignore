@@ -3,7 +3,9 @@
 !vendor/premake/bin/
 **/bin-int/
 
-UI/vendor/*
+project/Hazel/vendor/*
+project/Hazel/src/Hazel/Graphics/Renderer/UI/*
+project/Client/vendor/*
 
 # Hazel files
 *.log

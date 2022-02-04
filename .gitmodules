@@ -1,9 +1,9 @@
-[submodule "UI/src/Vendor/glm"]
-	path = UI/src/Vendor/glm
+[submodule "project/Hazel/vendor/glm"]
+	path = project/Hazel/vendor/glm
 	url = https://github.com/g-truc/glm
-[submodule "UI/vendor/glfw"]
-	path = UI/vendor/glfw
+[submodule "project/Hazel/vendor/glfw"]
+	path = project/Hazel/vendor/glfw
 	url = https://github.com/glfw/glfw
-[submodule "UI/vendor/spdlog"]
-	path = UI/vendor/spdlog
+[submodule "project/Hazel/vendor/spdlog"]
+	path = project/Hazel/vendor/spdlog
 	url = https://github.com/gabime/spdlog
