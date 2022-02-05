@@ -1,5 +1,9 @@
 #pragma once
 
+#ifdef HZ_PLATFORM_WINDOWS
+ #include <Windows.h>
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -23,68 +27,43 @@
 #include <unordered_map>
 #include <random>
 
+//
+
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include <Hazel/Core/Base.h>
+#include <Hazel/Core/Log.h>
+
 #include <entt/entt.hpp>
 
+//
 
-#ifdef HZ_PLATFORM_WINDOWS
- #include <Windows.h>
-#endif
 #undef CreateWindow
 
-//#ifdef _WIN32
-//#define _WIN32_WINNT 0x0A00
-//#endif
+#include "Core/Flags.h"
 
-//#define ASIO_STANDALONE
-//#pragma warning( push, 0 )
-//#include <asio.hpp>
-//#include <asio/ts/buffer.hpp>
-//#include <asio/ts/internet.hpp>
-//#pragma warning( pop )
+#include "Core/Containers/Stack.h"
 
-//#include <stb_image.h>
-//#include <stb_textedit.h>
-//#include <stb_truetype.h>
+#include "Core/Math/MathCommon.h"
+#include "Core/Math/Random.h"
 
-#if HZ_DEBUG
-	#define _CONSOLEAPP TRUE
-#elif HZ_RELEASE
-	#define _CONSOLEAPP TRUE
-#else
-	#define _WINDOWEDAPP TRUE
-#endif
+#include "Core/Geometry/Rect.h"
+#include "Core/Geometry/Polygon.h"
+#include "Core/Geometry/Angle.h"
+#include "Core/Geometry/Circle.h"
+#include "Core/Geometry/Transformation.h"
 
-#if _CONSOLEAPP
-	#define FMT_USE_USER_DEFINED_LITERALS 0
-	#include <spdlog/spdlog.h>
-	#include <spdlog/sinks/stdout_color_sinks.h>
-#endif
+#include "Core/Debug/Dummy.h"
 
-namespace Hazel {
+#include "Core/Data/Buffer.h"
 
-	#define BIT(x) 1 << x
+#include "Core/Time/Timer.h"
+#include "Core/Time/TimeLiterals.h"
 
-	// Pointers
-		template<typename T>
-		using Scope = std::unique_ptr<T>;
-		
-		template<typename T, typename ... Args>
-		constexpr Scope<T> CreateScope(Args&& ... args)
-		{
-			return std::make_unique<T>(std::forward<Args>(args)...);
-		}
+#include "Core/Using.h"
 
-		template<typename T>
-		using Reference = std::shared_ptr<T>;
-		
-		template<typename T, typename ... Args>
-		constexpr Reference<T> CreateReference(Args&& ... args)
-		{
-			return std::make_shared<T>(std::forward<Args>(args)...);
-		}
 
-}

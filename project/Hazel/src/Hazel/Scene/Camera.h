@@ -19,6 +19,7 @@ namespace Hazel
 		void SetPosition(const vec3& position) { m_Position = position; m_ViewHadChanged = true; }
 		void SetRotation(float rotation) { m_Rotation = rotation; m_ViewHadChanged = true; }
 		void RotateBy(float rotation) { m_Rotation += rotation; m_ViewHadChanged = true; }
+		void MoveBy(vec2 translation) { m_Position += vec3(translation,0.f); m_ViewHadChanged = true; }
 
 		const vec3& GetPosition() const { return m_Position; }
 		float GetRotation() const { return m_Rotation; }

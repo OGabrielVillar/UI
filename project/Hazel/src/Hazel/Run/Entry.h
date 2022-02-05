@@ -2,7 +2,7 @@
 
 #ifdef HZ_PLATFORM_WINDOWS
 
-#if _CONSOLEAPP
+#ifdef _CONSOLEAPP
 	#define APP main()
 #else
 	#define APP WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)

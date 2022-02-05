@@ -1,7 +1,5 @@
 #pragma once
 
-#include "core.h"
-
 namespace Hazel {
 	
 	class IndexBuffer {

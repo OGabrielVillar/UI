@@ -37,8 +37,10 @@ namespace Hazel::Geometry {
 				T b;
 				T bottom;
 			};
-			T width() { return w - x; };
-			T height() { return z - y; };
+			T width() const { return w - x; };
+			T height() const  { return z - y; };
+			Rect& SetWidth(T width) { w = x + width; return *this; };
+			Rect& SetHeight(T height) { z = y + height; return *this; };
 
 		 public:
 			inline static Rect<T> LTRB(T left, T top, T right, T bottom)

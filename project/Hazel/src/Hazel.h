@@ -1,5 +1,9 @@
 #pragma once
 
-#include "Hazel/Run/Log.h"
-#include "Hazel/Run/Application.h"
-#include "Hazel/Graphics/Renderer/BufferLayout.h"
+#include "Core/Log.h"
+
+#include "Graphics/Renderer/Renderer.h"
+
+#include "Run/Application.h"
+
+#include "Input/Command.h"

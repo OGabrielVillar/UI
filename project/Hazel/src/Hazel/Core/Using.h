@@ -1,23 +1,5 @@
 #pragma once
 
-#include "Core/Flags.h"
-#include "Core/ThreadLock.h"
-
-#include "Core/Data/Buffer.h"
-
-#include "Core/Containers/Stack.h"
-
-#include "Core/Math/MathCommon.h"
-#include "Core/Math/Random.h"
-
-#include "Core/Time/TimeCommon.h"
-#include "Core/Time/Timer.h"
-
-#include "Core/Geometry/Angle.h"
-#include "Core/Geometry/Rect.h"
-#include "Core/Geometry/Collision.h"
-#include "Core/Geometry/Transformation.h"
-
 namespace Hazel {
 	
 	// [Definitions]

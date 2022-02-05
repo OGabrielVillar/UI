@@ -23,6 +23,8 @@ project "Editor"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.msdf_atlas_gen}",
+		"%{IncludeDir.msdfgen}",
 	}
 
 	links
@@ -32,7 +34,12 @@ project "Editor"
 
 	filter { "configurations:Release", "system:windows" }
 		postbuildcommands {
-			"xcopy /y /i $(TargetDir)$(TargetFileName) $(SolutionDir)exe\\"
+			"xcopy /y /i $(TargetDir)$(TargetFileName) $(SolutionDir)exe\\Release\\"
+		}
+		
+	filter { "configurations:Dist", "system:windows" }
+		postbuildcommands {
+			"xcopy /y /i $(TargetDir)$(TargetFileName) $(SolutionDir)exe\\Dist\\"
 		}
 
 	filter "system:windows"

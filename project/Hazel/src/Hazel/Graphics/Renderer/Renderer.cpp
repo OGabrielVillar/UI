@@ -8,7 +8,8 @@ namespace Hazel
 
 	Renderer::SceneData* Renderer::s_SceneData = new SceneData();
 	Reference<Shader> Renderer::s_RectShader = nullptr;
-	Reference<VertexArray> Renderer::s_RectVA;
+	Reference<VertexArray> Renderer::s_RectVA = nullptr;
+	Reference<VertexBuffer> Renderer::s_RectVB = nullptr;
 	
 	void Renderer::Init()
 	{
@@ -16,6 +17,7 @@ namespace Hazel
 	}
 	void Renderer::InitRectDrawing()
 	{
+		HZ_ASSERT(s_RectShader == nullptr, "Renderer::InitRectDrawing initiating rect drawing parameters twice!");
 	 // --- Rect Shader
 		const string vertexSrc = R"(
 			#version 330 core
@@ -63,31 +65,39 @@ namespace Hazel
 			{BufferLayoutDataType::Float2, "a_Position"},
 		});
 		
-		Reference<VertexBuffer> vb = VertexBuffer::Create(vertices, sizeof(vertices), buffer_layout);
-		s_RectVA->AddVertexBuffer(vb);
+		s_RectVB = VertexBuffer::Create(vertices, sizeof(vertices), buffer_layout);
+		s_RectVA->AddVertexBuffer(s_RectVB);
 
 		uint32_t indices[] =  { 0, 1, 2, 2, 3, 0};
 		Reference<IndexBuffer> ib = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
 		s_RectVA->SetIndexBuffer(ib);
 	}
+
 	void Renderer::SetClearColor(const vec4& color)
 	{
 		RenderCommand::SetClearColor(color);
 	}
+
 	void Renderer::Clear()
 	{
 		RenderCommand::Clear();
 	}
+
 	void Renderer::BeginScene(Camera& camera)
 	{
 		s_SceneData->viewProjectionMatrix = &camera.GetViewProjectionMatrix();
 	}
+
 	void Renderer::EndScene()
 	{
 	}
-	void Renderer::SetWindowSize(float width, float height) {
+
+	void Renderer::SetWindowSize(float width, float height) 
+	{
 		s_SceneData->windowMatrix = glm::ortho(0.f, width, height, 0.f, -1.f, 1.f);
+		RenderCommand::SetWindowSize(width, height);
 	}
+
 	void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray)
 	{
 		shader->Bind();
@@ -95,6 +105,7 @@ namespace Hazel
 		vertexArray->Bind();
 		RenderCommand::DrawIndexed(vertexArray);
 	}
+
 	void Renderer::DrawRect(const Rect& rect, const vec4& color)
 	{
 		float vertices[] {
@@ -110,41 +121,6 @@ namespace Hazel
 		s_RectShader->UploadUniform("u_Color", color);
 		s_RectVA->Bind();
 		RenderCommand::DrawIndexed(s_RectVA);
-	}
-
-	Shader* Renderer::GenerateSolidShader()
-	{
-		const string vertexSrc = R"(
-			#version 330 core
-		
-			layout(location = 0) in vec2 a_Position;
-
-			uniform mat4 u_Projection;
-			uniform vec4 u_Color;
-			
-			out vec4 v_Color;
-
-			void main()
-			{
-				v_Color = u_Color;
-				gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
-			}
-		)";
-		
-		const string fragmentSrc = R"(
-			#version 330 core
-		
-			layout(location = 0) out vec4 color;
-
-			in vec4 v_Color;
-
-			void main()
-			{
-				color = vec4(v_Color.x, v_Color.y, v_Color.z, 1.0);
-			}
-		)";
-
-		return new Shader(vertexSrc, fragmentSrc);
 	}
 
 	/*void DrawString(const std::string& string, const Reference<Font>& font, const glm::mat4& transform, float maxWidth, const glm::vec4& color, float lineHeightOffset, float kerningOffset)

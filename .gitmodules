@@ -7,3 +7,6 @@
 [submodule "project/Hazel/vendor/spdlog"]
 	path = project/Hazel/vendor/spdlog
 	url = https://github.com/gabime/spdlog
+[submodule "project/Hazel/vendor/msdf-atlas-gen"]
+	path = project/Hazel/vendor/msdf-atlas-gen
+	url = https://github.com/TheCherno/msdf-atlas-gen

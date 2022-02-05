@@ -5,8 +5,6 @@
 
 #include "RendererAPI.h"
 
-#include "Run/Log.h"
-
 namespace Hazel {
 	
 	Reference<IndexBuffer> IndexBuffer::Create(uint32_t* data, uint32_t size)

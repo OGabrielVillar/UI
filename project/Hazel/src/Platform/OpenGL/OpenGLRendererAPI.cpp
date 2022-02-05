@@ -22,4 +22,9 @@ namespace Hazel
 		glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 	}
 
+	void OpenGLRendererAPI::SetWindowSize(float width, float height)
+	{
+		glViewport(0, 0, width, height);
+	}
+
 }

@@ -5,8 +5,6 @@
 
 #include "RendererAPI.h"
 
-#include "Run/Log.h"
-
 namespace Hazel {
 
 	Reference<VertexArray> VertexArray::Create()

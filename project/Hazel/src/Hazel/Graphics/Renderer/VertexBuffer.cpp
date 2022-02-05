@@ -5,8 +5,6 @@
 
 #include "RendererAPI.h"
 
-#include "Run/Log.h"
-
 namespace Hazel {
 
 	Reference<VertexBuffer> VertexBuffer::Create(float* data, uint32_t size, Reference<BufferLayout>& layout)

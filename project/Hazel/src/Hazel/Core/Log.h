@@ -1,9 +1,20 @@
 #pragma once
 
-#include "core.h"
-
+#ifdef HZ_DEBUG
+	#define _CONSOLEAPP 1
+#elif HZ_RELEASE
+	#define _CONSOLEAPP 1
+#else
+	#define _WINDOWEDAPP 1
+#endif
 
 #ifdef _CONSOLEAPP
+
+#include <iostream>
+
+#define FMT_USE_USER_DEFINED_LITERALS 0
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace Hazel {
 	class Log {
@@ -24,13 +35,13 @@ namespace Hazel {
 			s_Logger->set_level(spdlog::level::trace);
 		}
 
-		inline static Reference<spdlog::logger>& GetAppLogger() { return s_ApplicationLogger; }
-		inline static Reference<spdlog::logger>& GetWinLogger() { return s_WindowLogger; }
-		inline static Reference<spdlog::logger>& GetLogger() { return s_Logger; }
+		inline static spdlog::logger& GetAppLogger() { return *s_ApplicationLogger; }
+		inline static spdlog::logger& GetWinLogger() { return *s_WindowLogger; }
+		inline static spdlog::logger& GetLogger() { return *s_Logger; }
 	private:
-		static Reference<spdlog::logger> s_ApplicationLogger;
-		static Reference<spdlog::logger> s_WindowLogger;
-		static Reference<spdlog::logger> s_Logger;
+		static std::shared_ptr<spdlog::logger> s_ApplicationLogger;
+		static std::shared_ptr<spdlog::logger> s_WindowLogger;
+		static std::shared_ptr<spdlog::logger> s_Logger;
 	};
 }
 
@@ -38,20 +49,20 @@ namespace Hazel {
 
 #define HZ_INIT_LOG Hazel::Log::Init()
 
-#define HZ_APP_TRACE(...) Hazel::Log::GetAppLogger()->trace(__VA_ARGS__)
-#define HZ_APP_INFO(...) Hazel::Log::GetAppLogger()->info(__VA_ARGS__)
-#define HZ_APP_WARN(...) Hazel::Log::GetAppLogger()->warn(__VA_ARGS__)
-#define HZ_APP_ERROR(...) Hazel::Log::GetAppLogger()->error(__VA_ARGS__)
-#define HZ_APP_FATAL(...) Hazel::Log::GetAppLogger()->critical(__VA_ARGS__)
+#define HZ_APP_TRACE(...) Hazel::Log::GetAppLogger().trace(__VA_ARGS__)
+#define HZ_APP_INFO(...) Hazel::Log::GetAppLogger().info(__VA_ARGS__)
+#define HZ_APP_WARN(...) Hazel::Log::GetAppLogger().warn(__VA_ARGS__)
+#define HZ_APP_ERROR(...) Hazel::Log::GetAppLogger().error(__VA_ARGS__)
+#define HZ_APP_FATAL(...) Hazel::Log::GetAppLogger().critical(__VA_ARGS__)
 
 
-#define HZ_WIN_TRACE(...) Hazel::Log::GetWinLogger()->trace(__VA_ARGS__)
-#define HZ_WIN_INFO(...) Hazel::Log::GetWinLogger()->info(__VA_ARGS__)
-#define HZ_WIN_WARN(...) Hazel::Log::GetWinLogger()->warn(__VA_ARGS__)
-#define HZ_WIN_ERROR(...) Hazel::Log::GetWinLogger()->error(__VA_ARGS__)
-#define HZ_WIN_FATAL(...) Hazel::Log::GetWinLogger()->critical(__VA_ARGS__)
+#define HZ_WIN_TRACE(...) Hazel::Log::GetWinLogger().trace(__VA_ARGS__)
+#define HZ_WIN_INFO(...) Hazel::Log::GetWinLogger().info(__VA_ARGS__)
+#define HZ_WIN_WARN(...) Hazel::Log::GetWinLogger().warn(__VA_ARGS__)
+#define HZ_WIN_ERROR(...) Hazel::Log::GetWinLogger().error(__VA_ARGS__)
+#define HZ_WIN_FATAL(...) Hazel::Log::GetWinLogger().critical(__VA_ARGS__)
 
-#define HZ_ERROR(...) Hazel::Log::GetLogger()->error(__VA_ARGS__)
+#define HZ_ERROR(...) Hazel::Log::GetLogger().error(__VA_ARGS__)
 
 #else
 

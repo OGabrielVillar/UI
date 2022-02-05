@@ -2,12 +2,13 @@
 
 #include "VertexArray.h"
 #include "Shader.h"
-
 #include "Scene/Camera.h"
 
-#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
 
 namespace Hazel {
+
+	using Geometry::intRect;
 
 	class Renderer {
 	 public:
@@ -47,6 +48,7 @@ namespace Hazel {
 	 private:
 		static Reference<Shader> s_RectShader;
 		static Reference<VertexArray> s_RectVA;
+		static Reference<VertexBuffer> s_RectVB;
 
 	};
 

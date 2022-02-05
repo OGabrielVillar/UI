@@ -37,6 +37,8 @@ project "Hazel"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.entt}",
 		"%{IncludeDir.spdlog}",
+		"%{IncludeDir.msdf_atlas_gen}",
+		"%{IncludeDir.msdfgen}",
 	}
 
 	links

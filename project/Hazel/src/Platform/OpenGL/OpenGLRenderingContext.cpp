@@ -5,7 +5,6 @@
 #include <GLFW/glfw3.h>
 
 #include "Graphics/Renderer/BufferLayout.h"
-#include "Run/Log.h"
 
 namespace Hazel {
 

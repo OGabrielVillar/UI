@@ -4,18 +4,16 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Log.h"
 #include "Platform/OpenGL/OpenGLRenderingContext.h"
 
 #include "Graphics/Renderer/Renderer.h"
+#include "Device/Keyboard/Keyboard.h"
+#include "Device/Mouse/Mouse.h"
 
 namespace Hazel {
 
-	Window::Window()
-	{}
-
-	Window::Window(std::string&& name)
-		: m_name(name)
+	Window::Window(const std::string& name, Flags flags)
+		: m_Name(name), m_Flags((Flags)flags)
 	{}
 
 	Window::~Window()
@@ -32,66 +30,181 @@ namespace Hazel {
 		if (!glfwInit())
 			return;
 
-		// Remove TitleBar
-		glfwWindowHint(GLFW_DECORATED, false);
+		// Flag Decorated
+		if (m_Flags.NotContains(Window::Flag::Decorated))
+			glfwWindowHint(GLFW_DECORATED, false);
 
-		//Transparent Window?
-		glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, true);
+		// Flag Transparent
+		if (m_Flags.Contains(Window::Flag::Transparent))
+			glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, true);
+		
+		// Flag Maximazed
+		if (m_Flags.Contains(Window::Flag::Maximazed))
+			glfwWindowHint(GLFW_MAXIMIZED, true);
+		
+		// Flag Focused
+		if (m_Flags.NotContains(Window::Flag::Focused))
+			glfwWindowHint(GLFW_FOCUSED, false);
+		
+		// Flag Hidden
+		if (m_Flags.Contains(Window::Flag::Hidden))
+			glfwWindowHint(GLFW_VISIBLE, false);
 
 		/* Create a windowed mode window and its OpenGL context */
-		m_window = glfwCreateWindow(m_rect.width(), m_rect.height(), m_name.c_str(), NULL, NULL);
+		m_Window = glfwCreateWindow(m_Rect.width(), m_Rect.height(), m_Name.c_str(), NULL, NULL);
 
-		m_context = CreateReference<OpenGLRenderingContext>(m_window);
-		m_context->Init();
+		m_Context = CreateReference<OpenGLRenderingContext>(m_Window);
+		m_Context->Init();
 		
-		// Move window
-		int monitor_width, monitor_height;
-		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), nullptr, nullptr, &monitor_width, &monitor_height);
-
-		glfwSetWindowPos(m_window,
-			(monitor_width / 2) - (m_rect.width() / 2),
-			(monitor_height / 2) - (m_rect.height() / 2));
-
-		Renderer::SetWindowSize(m_rect.width(), m_rect.height());
-
-		if (!m_window)
+		if (!m_Window)
 		{
 			glfwTerminate();
 			return;
 		}
 
+		glfwSetWindowUserPointer(m_Window, this);
+
+		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* glfwWindow, int width, int height)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			window.m_Rect.SetWidth(width);
+			window.m_Rect.SetHeight(height);
+			Renderer::SetWindowSize((float)width, (float)height);
+		});
+		
+		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* glfwWindow, int x, int y)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			window.m_Rect.x = x;
+			window.m_Rect.y = y;
+		});
+		
+		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* glfwWindow, int maximized)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			if (maximized)
+				window.m_Flags.Add(Window::Flag::Maximazed);
+			else
+				window.m_Flags.Remove(Window::Flag::Maximazed);
+			HZ_WIN_TRACE("Window maximized ({})", maximized);
+		});
+
+		glfwSetWindowIconifyCallback(m_Window, [](GLFWwindow* glfwWindow, int iconified)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			if (iconified)
+				window.m_Flags.Add(Window::Flag::Iconified);
+			else
+				window.m_Flags.Remove(Window::Flag::Iconified);
+			HZ_WIN_TRACE("Window iconified ({})", iconified);
+		});
+
+		glfwSetWindowFocusCallback(m_Window, [](GLFWwindow* glfwWindow, int focused)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			if (focused)
+				window.m_Flags.Add(Window::Flag::Focused);
+			else
+				window.m_Flags.Remove(Window::Flag::Focused);
+			HZ_WIN_TRACE("Window focused ({})", focused);
+		});
+
+	 // Keyboard Events
+		glfwSetKeyCallback(m_Window, [](GLFWwindow* glfwWindow, int key, int scancode, int action, int mods)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
+				if (window.m_Flags.Contains(Window::Flag::Maximazed))
+					glfwRestoreWindow(window.m_Window);
+			if (action == GLFW_PRESS && key == GLFW_KEY_F11)
+				if (window.m_Flags.NotContains(Window::Flag::Maximazed))
+					glfwMaximizeWindow(window.m_Window);
+			KeyboardKeyEvent event((Keyboard::Key)key,(Keyboard::Action)action,(Keyboard::Modifier)mods);
+			window.m_OnEventCallbackFn(event);
+		});
+		
+		glfwSetCharCallback(m_Window, [](GLFWwindow* glfwWindow, unsigned int character)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			KeyboardTextEvent event(character);
+			window.m_OnEventCallbackFn(event);
+		});
+
+	 // Cursor Events
+		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* glfwWindow, double xpos, double ypos)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			CursorPositionEvent event(vec2(xpos,ypos));
+			window.m_OnEventCallbackFn(event);
+		});
+		
+		glfwSetCursorEnterCallback(m_Window, [](GLFWwindow* glfwWindow, int entered)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			CursorEntryEvent event(entered);
+			window.m_OnEventCallbackFn(event);
+		});
+
+	 // Mouse Events
+		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* glfwWindow, int button, int action, int mods)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			MouseButtonEvent event((Mouse::Button)button,(Mouse::Action)action,(Keyboard::Modifier)mods);
+			window.m_OnEventCallbackFn(event);
+		});
+		
+		glfwSetScrollCallback(m_Window, [](GLFWwindow* glfwWindow, double xoffset, double yoffset)
+		{
+			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+			MouseScrollEvent event(vec2(xoffset, yoffset));
+			window.m_OnEventCallbackFn(event);
+		});
+
+		int monitor_width, monitor_height;
+		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), nullptr, nullptr, &monitor_width, &monitor_height);
+		
+		glfwSetWindowPos(m_Window,
+			(monitor_width / 2) - (m_Rect.width() / 2),
+			(monitor_height / 2) - (m_Rect.height() / 2));
+		
+		// Flag Iconified
+		if (m_Flags.Contains(Window::Flag::Iconified))
+			glfwIconifyWindow(m_Window);
+
+		int width, height;
+		glfwGetWindowSize(m_Window, &width, &height);
+		Renderer::SetWindowSize((float)width, (float)height);
 	}
 
 	void Window::Run()
 	{
-		//HZ_WIN_TRACE("Start running ... ");
 		glfwPollEvents();
-		m_context->SwapBuffers();
+		m_Context->SwapBuffers();
 	}
 	
 	void Window::SetSize(int width, int height)
 	{
-		glfwSetWindowSize(m_window, width, height);
+		glfwSetWindowSize(m_Window, width, height);
 	}
 
 	void Window::Minimize()
 	{
-		glfwIconifyWindow(m_window);
+		glfwIconifyWindow(m_Window);
 	}
 
 	void Window::Resume()
 	{
-		glfwRestoreWindow(m_window);
+		glfwRestoreWindow(m_Window);
 	}
 
 	int Window::IsAlive()
 	{
-		return !glfwWindowShouldClose(m_window);
+		return !glfwWindowShouldClose(m_Window);
 	}
 
 	void Window::Close()
 	{
-		glfwSetWindowShouldClose(m_window,true);
+		glfwSetWindowShouldClose(m_Window,true);
 	}
 
 }

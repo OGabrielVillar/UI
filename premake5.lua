@@ -21,24 +21,28 @@ workspace "Hazel"
 	{
 		"MultiProcessorCompile"
 	}
-
+	
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 liboutputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}/lib/"
+hzvendordir = "project/Hazel/vendor/"
 
 IncludeDir = {}
-IncludeDir["glm"] = "%{wks.location}/project/Hazel/vendor/glm"
-IncludeDir["stb"] = "%{wks.location}/project/Hazel/vendor/stb"
-
-IncludeDir["spdlog"] = "%{wks.location}/project/Hazel/vendor/spdlog/include"
-IncludeDir["GLFW"] = "%{wks.location}/project/Hazel/vendor/GLFW/include"
-IncludeDir["Glad"] = "%{wks.location}/project/Hazel/vendor/glad/include"
-IncludeDir["yaml_cpp"] = "%{wks.location}/project/Hazel/vendor/yaml-cpp/include"
-IncludeDir["entt"] = "%{wks.location}/project/Hazel/vendor/entt/include"
+IncludeDir["glm"] =				("%{wks.location}/" .. hzvendordir .. "glm")
+IncludeDir["stb"] =				("%{wks.location}/" .. hzvendordir .. "stb")
+IncludeDir["spdlog"] =			("%{wks.location}/" .. hzvendordir .. "spdlog/include")
+IncludeDir["GLFW"] =			("%{wks.location}/" .. hzvendordir .. "GLFW/include")
+IncludeDir["Glad"] =			("%{wks.location}/" .. hzvendordir .. "glad/include")
+IncludeDir["yaml_cpp"] =		("%{wks.location}/" .. hzvendordir .. "yaml-cpp/include")
+IncludeDir["entt"] =			("%{wks.location}/" .. hzvendordir .. "entt/include")
+IncludeDir["msdf_atlas_gen"] =	("%{wks.location}/" .. hzvendordir .. "msdf-atlas-gen/msdf-atlas-gen")
+IncludeDir["msdfgen"] =			("%{wks.location}/" .. hzvendordir .. "msdf-atlas-gen/msdfgen")
 
 group "_Dependencies"
     include "premake"
-    include "project/Hazel/vendor/glad"
-    include "project/Hazel/vendor/GLFW"
+    include (hzvendordir .. "glad")
+    include (hzvendordir .. "GLFW")
+group "_Dependencies/msdf"
+	include (hzvendordir .. "msdf-atlas-gen")
 	
 group "Applications"
 	include "project/Editor"
