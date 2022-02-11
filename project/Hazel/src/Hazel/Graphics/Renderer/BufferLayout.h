@@ -31,7 +31,8 @@ namespace Hazel {
 		case Hazel::BufferLayoutDataType::Mat3:		  return {4 * 3 * 3, 3 * 3};
 		case Hazel::BufferLayoutDataType::Mat4:		  return {4 * 4 * 4, 4 * 4};
 		}
-		HZ_ASSERT(false,"[Hazel::SizeCountOf] Unsupported \"BufferLayoutDataType\" case!")
+		HZ_ASSERT(false,"[Hazel::SizeCountOf] Unsupported \"BufferLayoutDataType\" case!");
+		return {0, 0};
 	}
 
 	// ---------------------------

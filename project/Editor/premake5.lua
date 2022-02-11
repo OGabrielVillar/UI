@@ -19,6 +19,7 @@ project "Editor"
 		"%{wks.location}/project/Hazel/src/Hazel",
 
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.entt}",
@@ -34,11 +35,13 @@ project "Editor"
 
 	filter { "configurations:Release", "system:windows" }
 		postbuildcommands {
+			"xcopy /y /i /e $(ProjectDir)assets $(SolutionDir)exe\\Release\\assets\\",
 			"xcopy /y /i $(TargetDir)$(TargetFileName) $(SolutionDir)exe\\Release\\"
 		}
 		
 	filter { "configurations:Dist", "system:windows" }
 		postbuildcommands {
+			"xcopy /y /i /e $(ProjectDir)assets $(SolutionDir)exe\\Dist\\assets\\",
 			"xcopy /y /i $(TargetDir)$(TargetFileName) $(SolutionDir)exe\\Dist\\"
 		}
 

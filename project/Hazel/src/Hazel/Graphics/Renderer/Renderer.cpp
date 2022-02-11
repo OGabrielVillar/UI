@@ -2,75 +2,59 @@
 #include "Renderer.h"
 
 #include "RenderCommand.h"
+#include "Platform/OpenGL/OpenGLShader.h"
 
 namespace Hazel 
 {
 
 	Renderer::SceneData* Renderer::s_SceneData = new SceneData();
 	Reference<Shader> Renderer::s_RectShader = nullptr;
-	Reference<VertexArray> Renderer::s_RectVA = nullptr;
-	Reference<VertexBuffer> Renderer::s_RectVB = nullptr;
+	Reference<VertexArray> Renderer::s_SquareVA = nullptr;
+	Reference<Shader> Renderer::s_TextureShader = nullptr;
 	
 	void Renderer::Init()
 	{
+		RenderCommand::Init();
 		InitRectDrawing();
+		InitTextureDrawing();
 	}
 	void Renderer::InitRectDrawing()
 	{
 		HZ_ASSERT(s_RectShader == nullptr, "Renderer::InitRectDrawing initiating rect drawing parameters twice!");
 	 // --- Rect Shader
-		const string vertexSrc = R"(
-			#version 330 core
-		
-			layout(location = 0) in vec2 a_Position;
 
-			uniform mat4 u_Projection;
-			uniform vec4 u_Color;
-			
-			out vec4 v_Color;
-
-			void main()
-			{
-				v_Color = u_Color;
-				gl_Position = u_Projection * vec4(a_Position, 0.0, 1.0);
-			}
-		)";
-		
-		const string fragmentSrc = R"(
-			#version 330 core
-		
-			layout(location = 0) out vec4 color;
-
-			in vec4 v_Color;
-
-			void main()
-			{
-				color = vec4(v_Color.x, v_Color.y, v_Color.z, 1.0);
-			}
-		)";
-
-		s_RectShader = std::make_shared<Shader>(vertexSrc, fragmentSrc);
+		s_RectShader = Shader::Create("assets/shaders/Rect2D.glsl");
 		
 	 // --- Rect Vertex Array
 		
-		s_RectVA = VertexArray::Create();
+		s_SquareVA = VertexArray::Create();
 
 		float vertices[] {
-			 0.0f, 0.0f,
-			 0.0f, 0.0f,
-			 0.0f, 0.0f,
-			 0.0f, 0.0f,
+			0.0f, 0.0f,
+			0.0f, 1.0f,
+			1.0f, 1.0f,
+			1.0f, 0.0f,
 		};
 		Reference<BufferLayout> buffer_layout(new BufferLayout {
-			{BufferLayoutDataType::Float2, "a_Position"},
+			{BufferLayoutDataType::Float2, "a_Position"}
 		});
 		
-		s_RectVB = VertexBuffer::Create(vertices, sizeof(vertices), buffer_layout);
-		s_RectVA->AddVertexBuffer(s_RectVB);
+		Reference<VertexBuffer> s_RectVB = VertexBuffer::Create(vertices, sizeof(vertices), buffer_layout);
+		s_SquareVA->AddVertexBuffer(s_RectVB);
 
 		uint32_t indices[] =  { 0, 1, 2, 2, 3, 0};
 		Reference<IndexBuffer> ib = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-		s_RectVA->SetIndexBuffer(ib);
+		s_SquareVA->SetIndexBuffer(ib);
+	}
+
+	void Renderer::InitTextureDrawing()
+	{
+		HZ_ASSERT(s_TextureShader == nullptr, "Renderer::InitTextureDrawing initiating rect drawing parameters twice!");
+	 // --- Rect Shader
+
+		s_TextureShader = Shader::Create("assets/shaders/Texture2D.glsl");
+		s_TextureShader->Bind();
+		std::dynamic_pointer_cast<OpenGLShader>(s_TextureShader)->UploadUniformInt("u_Texture", 0);
 	}
 
 	void Renderer::SetClearColor(const vec4& color)
@@ -88,39 +72,49 @@ namespace Hazel
 		s_SceneData->viewProjectionMatrix = &camera.GetViewProjectionMatrix();
 	}
 
+	void Renderer::BeginScene(const vec2& resolution)
+	{
+		s_SceneData->resolution = resolution;
+	}
+
 	void Renderer::EndScene()
 	{
 	}
 
 	void Renderer::SetWindowSize(float width, float height) 
 	{
-		s_SceneData->windowMatrix = glm::ortho(0.f, width, height, 0.f, -1.f, 1.f);
 		RenderCommand::SetWindowSize(width, height);
 	}
 
-	void Renderer::Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray)
+	void Renderer::Submit(const Reference<Shader>& shader, const Reference<VertexArray>& vertexArray, const mat4& transform)
 	{
 		shader->Bind();
-		shader->UploadUniform("u_ViewProjection", *(s_SceneData->viewProjectionMatrix));
+		std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_ViewProjection", *(s_SceneData->viewProjectionMatrix));
+		std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_Transform", transform);
 		vertexArray->Bind();
 		RenderCommand::DrawIndexed(vertexArray);
 	}
 
 	void Renderer::DrawRect(const Rect& rect, const vec4& color)
 	{
-		float vertices[] {
-			 rect.l, rect.t,
-			 rect.l, rect.b,
-			 rect.r, rect.b,
-			 rect.r, rect.t
-		};
-		s_RectVA->GetVertexBuffers()[0]->ChangeBufferData(vertices,sizeof(vertices));
-		// --- Submit
 		s_RectShader->Bind();
-		s_RectShader->UploadUniform("u_Projection", s_SceneData->windowMatrix);
-		s_RectShader->UploadUniform("u_Color", color);
-		s_RectVA->Bind();
-		RenderCommand::DrawIndexed(s_RectVA);
+		std::dynamic_pointer_cast<OpenGLShader>(s_RectShader)->UploadUniformFloat2("u_Resolution", s_SceneData->resolution);
+		std::dynamic_pointer_cast<OpenGLShader>(s_RectShader)->UploadUniformFloat2("u_RectPosition", rect.a());
+		std::dynamic_pointer_cast<OpenGLShader>(s_RectShader)->UploadUniformFloat2("u_RectSize", rect.size());
+		std::dynamic_pointer_cast<OpenGLShader>(s_RectShader)->UploadUniformFloat4("u_Color", color);
+		s_SquareVA->Bind();
+		RenderCommand::DrawIndexed(s_SquareVA);
+	}
+
+	void Renderer::DrawTexture(const Rect& rect, const Texture& texture)
+	{
+		s_TextureShader->Bind();
+		texture.Bind();
+		std::dynamic_pointer_cast<OpenGLShader>(s_TextureShader)->UploadUniformFloat2("u_Resolution", s_SceneData->resolution);
+		std::dynamic_pointer_cast<OpenGLShader>(s_TextureShader)->UploadUniformFloat2("u_RectPosition", rect.a());
+		std::dynamic_pointer_cast<OpenGLShader>(s_TextureShader)->UploadUniformFloat2("u_RectSize", rect.size());
+		s_SquareVA->Bind();
+		RenderCommand::DrawIndexed(s_SquareVA);
 	}
 
 	/*void DrawString(const std::string& string, const Reference<Font>& font, const glm::mat4& transform, float maxWidth, const glm::vec4& color, float lineHeightOffset, float kerningOffset)

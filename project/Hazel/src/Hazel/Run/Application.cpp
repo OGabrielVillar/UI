@@ -8,10 +8,12 @@ namespace Hazel
 	Application::Application(const std::string& name,  Window::Flags flags)
 	{
 		HZ_APP_TRACE("Initializing {0}... ", name);
-		
+
 		m_Window = CreateReference<Window>(name, flags);
 		m_Window->Init();
 		
+		Renderer::Init();
+
 		m_dt = m_dt_timer.update().count();
 
 		m_Window->SetOnEventCallback([this](const Event& e) { return OnEvent(e); });
@@ -32,9 +34,9 @@ namespace Hazel
 
 			m_dt = m_dt_timer.update().count();
 
-			m_Window->Run();
-
 			OnUpdate();
+
+			m_Window->Run();
 		}
 		HZ_APP_TRACE(" ... Stop running!");
 	}

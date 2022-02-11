@@ -19,6 +19,7 @@ project "Client"
 		"%{wks.location}/project/Hazel/src/Hazel",
 
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.entt}",

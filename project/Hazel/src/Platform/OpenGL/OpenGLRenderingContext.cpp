@@ -25,7 +25,6 @@ namespace Hazel {
 		// Lock the maximum refresh rate of the context to the display's maximum hz, sync.
 		//     0 = off, 1 = on.
 		glfwSwapInterval(1);
-
 		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		HZ_ASSERT(status,"OpenGLRenderingContext: Failed to load Glad!");
 		

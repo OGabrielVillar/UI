@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "Ref.h"
+//#include "Ref.h"
 
 namespace Hazel {
 
@@ -36,6 +36,9 @@ namespace Hazel {
 
 	template<typename T>
 	using Reference = std::shared_ptr<T>;
+
+	template<typename T>
+	using Ref = std::shared_ptr<T>;
 		
 	template<typename T, typename ... Args>
 	constexpr Reference<T> CreateReference(Args&& ... args)

@@ -1,14 +1,15 @@
 
 
-project "Hazel Editor" {
-	layer "Editor Layer" {}
-	ui "Editor UI" {}
+project layer "Hazel Editor" {
+	ui layer "Editor UI" {
+		
+	}
 	create/open/close ...
-	...project "Game Project" {
+	...project layer "Game Project" {
 		add...
 		...layer "Game Layer" {}
 		...ui "Game UI" {}
-		...scene "Game Scene" {
+		...scene layer "Game Scene" {
 			camera system
 		}
 		...world {

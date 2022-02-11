@@ -46,17 +46,15 @@ namespace Hazel {
 
 		void SetName(std::string&& name) { m_Name = name; }
 		void SetColor(const vec4& color) { m_Context->SetColor(color); }
+
+		glm::vec<2,int> GetResolution() const { return m_Rect.size(); }
 	 private:
 		GLFWwindow* m_Window = nullptr;
 		Reference<RenderingContext> m_Context = nullptr;
 		std::string m_Name;
 		Flags m_Flags;
-		intRect m_Rect = intRect::LTRB(0, 0, 1280, 720);
+		intRect m_Rect = intRect::WH(1280, 720);
 		EventCallbackFn m_OnEventCallbackFn;
-		//struct WindowData {
-		//	Window window; 
-		//};
-		//WindowData m_Data;
 	};
 
 }

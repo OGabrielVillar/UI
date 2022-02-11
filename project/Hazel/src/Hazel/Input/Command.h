@@ -4,9 +4,33 @@
 #include "Device/Mouse/Mouse.h"
 
 namespace Hazel {
+
+#define BIND_FN(EVENT_TYPE, LAMBDA) std::function<bool(const EVENT_TYPE*)>(LAMBDA)
 	
-	using CommandCategory = string;
-	
+	//[Command Trigger]
+	struct CommandTrigger {
+	public:
+		template<typename T,
+				 typename = typename std::enable_if<std::derived_from<T, Event>>::type>
+		CommandTrigger(const T& event)
+			: m_Event(std::make_unique<T>(event))
+		{}
+
+		template<typename T,
+				 typename = typename std::enable_if<std::derived_from<T, Event>>::type>
+		bool Evaluate(const T& event) const
+		{
+			if (event.type == m_Event->type)
+				if (static_cast<const T&>(*m_Event) == event)
+					return true;
+			return false;
+		}
+
+	private:
+		Scope<Event> m_Event;
+	};
+
+
 	//[Command Flags]
 	enum class CommandFlag : uint8_t {
 		Remappable			= BIT(0),
@@ -21,59 +45,82 @@ namespace Hazel {
 		using Flags = Flags<CommandFlag>;
 
 	 public:
-		template<typename T,
-				 typename = typename std::enable_if<std::derived_from<T, Event>>::type>
-		Command(const string& name, const T& event, Flags flags = Flags())
-			: m_Name(name), m_Event(std::make_unique<T>(event))
-		{}
-
-		void Rename(const char* name) { m_Name = name; }
-		template<typename T,
-				 typename = typename std::enable_if<std::derived_from<T, Event>>::type>
-		inline void SetFunction(std::function<bool(const T*)> function) {
-			m_Function = *((std::function<bool(void*)>*)&function);
+		Command() = default;
+		Command(const std::function<bool()>& function) 
+		{ 
+			SetFunction(function); 
 		}
-		template<typename T,
-				 typename = typename std::enable_if<std::derived_from<T, Event>>::type>
-		void SetInputEvent(const T& event) { m_Event.reset(std::make_unique<T>(event)); }
-		void SetCategory(const CommandCategory& category) { m_Category = category; }
 
-		inline bool Handle(const Event& event) {
-			#define CASE(TYPE) case EventType::TYPE: return Handle<TYPE ## Event>(event)
-			if (m_Event->type == event.type)
-				switch (event.type)
-				{
-					//CASE(WindowSize);
-					//CASE(WindowFocus);
-					//CASE(WindowPosition);
-					CASE(CursorPosition);
-					CASE(CursorEntry);
-					CASE(MouseButton);
-					CASE(MouseScroll);
-					CASE(KeyboardKey);
-					CASE(KeyboardText);
-				};
+		// Add Trigger
+		template<typename EVENT,
+				 typename = typename std::enable_if<std::derived_from<EVENT, Event>>::type>
+		inline void AddTrigger(const EVENT& event)
+		{
+			if (m_Type == EVENT::GetType()) {
+				m_Triggers.push_back(CommandTrigger(event));
+			} else {
+				HZ_ASSERT(false, "Command::AddTrigger: Command needs a function before adding a trigger!");
+			}
+		}
+		
+		// Handle Dispatcher
+		inline bool Handle(const Event& event) 
+		{
+		#define CASE(TYPE) case EventType::TYPE: return Handle<Event ## TYPE>(static_cast<const Event ## TYPE ## &>(event))
+			switch (event.type)
+			{
+				CASE(CursorPosition);
+				CASE(CursorEntry);
+				CASE(MouseButton);
+				CASE(MouseScroll);
+				CASE(KeyboardKey);
+				CASE(KeyboardText);
+			};
 			#undef CASE
 			return false;
 		}
+		
+		// Set Function with event argument;
+		template<typename EVENT, typename F,
+				 typename = typename std::enable_if<std::derived_from<EVENT, Event>>::type>
+		inline void SetFunction(const F& function)
+		{
+			if (m_Function) {
+				HZ_ASSERT(false, "Command::SetFunction<>: Command already have a function!")
+			} else {
+				m_Type = EVENT::GetType();
+				*((std::function<bool(EVENT*)>*)&m_Function) = function;
+			}
+		}
+		// Set Function with no arguments;
+		inline void SetFunction(const std::function<bool()>& function)
+		{
+			if (m_Function) {
+				HZ_ASSERT(false, "Command::SetFunction<>: Command already have a function!")
+			} else {
+				m_Type = TriggerFlag::Any;
+				*((std::function<bool()>*)&m_Function) = function;
+			}
+		}
+
 	 private:
+		// Handle
 		template<typename T,
 				 typename = typename std::enable_if<std::derived_from<T, Event>>::type>
-		inline bool Handle(const Event& event) {
-			const T& e = static_cast<const T&>(event);
-			if (static_cast<const T&>(*m_Event) == e)
-				return m_Function((void*)&e);
+		inline bool Handle(const T& event) {
+			for (const CommandTrigger& trigger : m_Triggers)
+				if (m_Function && trigger.Evaluate(event))
+					return m_Function((void*)&event);
 			return false;
 		}
 
 	 private:
-		              Scope<Event> m_Event;
+		TriggerType m_Type;
+		std::vector<CommandTrigger> m_Triggers;
 		std::function<bool(void*)> m_Function;
-		                    string m_Name;
-		           CommandCategory m_Category;
-		                     Flags m_Flags;
+		Flags m_Flags;
 
 	};
-
-
+	template<typename T>
+	Command addCommand(){}
 }

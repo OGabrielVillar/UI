@@ -32,10 +32,10 @@ namespace Hazel {
 			return *((Flags<T2>*)this);
 		}
 
-		inline bool operator == (const Flags<T>& rh) {
+		inline bool operator == (const Flags<T>& rh) const {
 			return value == rh.value;
 		}
-		inline bool operator != (const Flags<T>& rh) {
+		inline bool operator != (const Flags<T>& rh) const {
 			return value != rh.value;
 		}
 
@@ -51,17 +51,17 @@ namespace Hazel {
 			value ^= (Ty)rh;
 		}
 
-		inline bool Contains(const T rh) {
+		inline bool Contains(const T rh) const {
 			return ((value & (Ty)rh) == (Ty)rh);
 		}
-		inline bool Contains(const Flags<T> rh) {
+		inline bool Contains(const Flags<T> rh) const {
 			return ((value & rh.value) == (Ty)rh);
 		}
 
-		inline bool NotContains(const T rh) {
+		inline bool NotContains(const T rh) const {
 			return ((value & (Ty)rh) == Ty(0));
 		}
-		inline bool NotContains(const Flags<T> rh) {
+		inline bool NotContains(const Flags<T> rh) const {
 			return ((value & rh.value) == Ty(0));
 		}
 

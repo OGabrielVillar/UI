@@ -16,6 +16,8 @@ namespace Hazel::Math {
 	const float pi = glm::pi<float>();
 
 	using vec2 = glm::vec2;
+	using vec2int = glm::vec<2, int>;
+	using vec2uint = glm::vec<2, unsigned int>;
 	using vec3 = glm::vec3;
 	using vec4 = glm::vec4;
 	using mat3 = glm::mat3;

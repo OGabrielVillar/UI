@@ -17,10 +17,9 @@ project "Hazel"
 		"vendor/glm/glm/**.hpp",
 		"vendor/glm/glm/**.inl",
 		"vendor/entt/include/entt/entt.hpp",
+		"vendor/stb/include/stb_image.h",
+		"vendor/stb/include/stb_image.cpp",
 	}
-	
-	removefiles {
-	}	
 
 	defines
 	{
@@ -33,6 +32,7 @@ project "Hazel"
 		"src",
 		"src/Hazel",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.entt}",

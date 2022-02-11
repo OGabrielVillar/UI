@@ -75,8 +75,8 @@ namespace Hazel {
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* glfwWindow, int x, int y)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
-			window.m_Rect.x = x;
-			window.m_Rect.y = y;
+			intRect& rect = window.m_Rect;
+			rect += vec2int(x, y) - rect.a();
 		});
 		
 		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* glfwWindow, int maximized)
@@ -119,14 +119,14 @@ namespace Hazel {
 			if (action == GLFW_PRESS && key == GLFW_KEY_F11)
 				if (window.m_Flags.NotContains(Window::Flag::Maximazed))
 					glfwMaximizeWindow(window.m_Window);
-			KeyboardKeyEvent event((Keyboard::Key)key,(Keyboard::Action)action,(Keyboard::Modifier)mods);
+			EventKeyboardKey event((Keyboard::Key)key,(Keyboard::Action)action,(Keyboard::Modifier)mods);
 			window.m_OnEventCallbackFn(event);
 		});
 		
 		glfwSetCharCallback(m_Window, [](GLFWwindow* glfwWindow, unsigned int character)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
-			KeyboardTextEvent event(character);
+			EventKeyboardText event(character);
 			window.m_OnEventCallbackFn(event);
 		});
 
@@ -134,14 +134,14 @@ namespace Hazel {
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* glfwWindow, double xpos, double ypos)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
-			CursorPositionEvent event(vec2(xpos,ypos));
+			EventCursorPosition event(vec2(xpos,ypos));
 			window.m_OnEventCallbackFn(event);
 		});
 		
 		glfwSetCursorEnterCallback(m_Window, [](GLFWwindow* glfwWindow, int entered)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
-			CursorEntryEvent event(entered);
+			EventCursorEntry event(entered);
 			window.m_OnEventCallbackFn(event);
 		});
 
@@ -149,14 +149,14 @@ namespace Hazel {
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* glfwWindow, int button, int action, int mods)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
-			MouseButtonEvent event((Mouse::Button)button,(Mouse::Action)action,(Keyboard::Modifier)mods);
+			EventMouseButton event((Mouse::Button)button,(Mouse::Action)action,(Keyboard::Modifier)mods);
 			window.m_OnEventCallbackFn(event);
 		});
 		
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* glfwWindow, double xoffset, double yoffset)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
-			MouseScrollEvent event(vec2(xoffset, yoffset));
+			EventMouseScroll event(vec2(xoffset, yoffset));
 			window.m_OnEventCallbackFn(event);
 		});
 

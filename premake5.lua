@@ -28,7 +28,7 @@ hzvendordir = "project/Hazel/vendor/"
 
 IncludeDir = {}
 IncludeDir["glm"] =				("%{wks.location}/" .. hzvendordir .. "glm")
-IncludeDir["stb"] =				("%{wks.location}/" .. hzvendordir .. "stb")
+IncludeDir["stb"] =				("%{wks.location}/" .. hzvendordir .. "stb/include")
 IncludeDir["spdlog"] =			("%{wks.location}/" .. hzvendordir .. "spdlog/include")
 IncludeDir["GLFW"] =			("%{wks.location}/" .. hzvendordir .. "GLFW/include")
 IncludeDir["Glad"] =			("%{wks.location}/" .. hzvendordir .. "glad/include")

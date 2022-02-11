@@ -35,14 +35,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include <Hazel/Core/Base.h>
-#include <Hazel/Core/Log.h>
-
 #include <entt/entt.hpp>
 
 //
 
 #undef CreateWindow
+
+#include <Hazel/Core/Base.h>
+#include <Hazel/Core/Log.h>
 
 #include "Core/Flags.h"
 

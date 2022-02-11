@@ -9,14 +9,14 @@ namespace Hazel {
 
 	Reference<VertexArray> VertexArray::Create()
 	{
-			switch(RendererAPI::Get())
-			{
-			case RendererAPI::None:   HZ_ASSERT(false, "VertexArray::Create: RendererAP::None not suported!") return nullptr;
-			case RendererAPI::OpenGL: return CreateReference<OpenGLVertexArray>();
-			}
+		switch(RendererAPI::Get())
+		{
+		case RendererAPI::None:   HZ_ASSERT(false, "VertexArray::Create: RendererAP::None not suported!") return nullptr;
+		case RendererAPI::OpenGL: return CreateReference<OpenGLVertexArray>();
+		}
 
-			HZ_ASSERT(false, "VertexArray::Create: Unkown Renderer::API!")
-			return nullptr;
+		HZ_ASSERT(false, "VertexArray::Create: Unkown Renderer::API!")
+		return nullptr;
 	}
 
 }
