@@ -27,6 +27,12 @@ namespace Hazel
 		glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 	}
 
+	void OpenGLRendererAPI::UnbindFramebuffers(const vec2int& resolution)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glViewport(0, 0, resolution.x, resolution.y);
+	}
+
 	void OpenGLRendererAPI::SetWindowSize(float width, float height)
 	{
 		glViewport(0, 0, width, height);

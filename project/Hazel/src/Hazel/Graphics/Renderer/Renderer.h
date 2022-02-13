@@ -2,7 +2,7 @@
 
 #include "VertexArray.h"
 #include "Shader.h"
-#include "Scene/Camera.h"
+#include "Project/Scene.h"
 #include "Graphics/Texture.h"
 
 //#include <glm/gtc/matrix_transform.hpp>
@@ -21,9 +21,9 @@ namespace Hazel {
 		static void SetClearColor(const vec4& color);
 		static void Clear();
 
-		static void BeginScene(Camera& camera);
-		static void BeginScene(const vec2& resolution);
+		static void BeginScene(Scene& scene);
 		static void EndScene();
+		static void UnbindFramebuffers(const vec2int& resolution);
 		
 		static void SetWindowSize(float width, float height);
 

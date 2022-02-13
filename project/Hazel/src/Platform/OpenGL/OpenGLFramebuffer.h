@@ -1,22 +1,22 @@
 #pragma once
 
 #include "OpenGLTexture.h"
+#include "Graphics/Renderer/Framebuffer.h"
 
 namespace Hazel {
 	
-	class OpenGLFramebuffer
+	class OpenGLFramebuffer : public Framebuffer
 	{
 	public:
 		OpenGLFramebuffer(uint32_t width, uint32_t height, uint32_t channels);
 		~OpenGLFramebuffer();
 
-		void Init();
+		virtual void Init() override;
 
-		void Bind();
-		void Unbind();
-		void Unbind(vec2int resolution);
-
-		const Texture& GetTexture() { return m_Texture; }
+		virtual void Bind() override;
+		virtual void Unbind() override;
+		virtual void Unbind(vec2int resolution) override;
+		virtual const Texture& GetTexture() const override { return m_Texture; }
 
 		void CreateDepthBuffer();
 

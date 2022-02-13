@@ -46,10 +46,33 @@ namespace Hazel::Geometry {
 			inline T width() const { return b_x - a_x; }
 			inline T height() const  { return b_y - a_y; }
 			inline vec2Type size() const  { 
-				return *((vec2Type*)&b_x) - *((vec2Type*)&a_x);
+				return vec2Type(b_x - a_x, b_y - a_y);
 			}
-			inline AABBRect& SetWidth(T width) { b_x = a_x + width; return *this; }
-			inline AABBRect& SetHeight(T height) { b_y = a_y + height; return *this; }
+			inline AABBRect& SetWidth(T width) 
+			{ 
+				b_x = a_x + width; 
+				return *this; 
+			}
+			inline AABBRect& SetHeight(T height) 
+			{ 
+				b_y = a_y + height; 
+				return *this; 
+			}
+			inline AABBRect& SetSize(vec2Type size) 
+			{ 
+				b_x = a_x + size.x; 
+				b_y = a_y + size.y; 
+				return *this; 
+			}
+			inline AABBRect& SetPosition(vec2Type position) 
+			{ 
+				vec2Type shift = position - *((vec2Type*)&a_x);
+				a_x += shift.x;
+				a_y += shift.y;
+				b_x += shift.x;
+				b_y += shift.y;
+				return *this; 
+			}
 
 			inline AABBRect operator + (T rh) const { return *((vec4Type*)this) + rh; }
 			inline AABBRect operator - (T rh) const { return *((vec4Type*)this) - rh; }

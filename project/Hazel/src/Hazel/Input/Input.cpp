@@ -1,6 +1,8 @@
 #include "pch.h"
 #include "Command.h"
 
+
+
 namespace Hazel {
 
 	void CommandExample() {

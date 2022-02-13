@@ -30,7 +30,11 @@ namespace Hazel {
 		{
 			s_RendererAPI->SetWindowSize(width, height);
 		}
-
+		
+		inline static void UnbindFramebuffers(const vec2int& resolution)
+		{
+			s_RendererAPI->UnbindFramebuffers(resolution);
+		}
 	private:
 		static RendererAPI* s_RendererAPI;
 	};

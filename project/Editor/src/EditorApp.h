@@ -27,9 +27,6 @@ private:// Shit
 	Hazel::Reference<Hazel::Shader> m_Shader;
 	Hazel::Reference<Hazel::VertexArray> m_VertexArray;
 
-	Hazel::Reference<Hazel::Shader> m_SquareShader;
-	Hazel::Reference<Hazel::VertexArray> m_SquareVA;
-
 	Hazel::Ref<Hazel::Texture> m_Texture;
 	Hazel::Ref<Hazel::Texture> m_Texture2;
 
@@ -40,11 +37,12 @@ private:// Shit
 	//Hazel::Rect m_Rect = Hazel::Rect(50.f,50.f,370.f,170.f) / 50.f;
 	Hazel::vec4 m_RectColor = { 0.9f, 0.75f, 0.8f, 1.f };
 
-	Hazel::Camera m_Camera = Hazel::Rect::XXYY(-1.777777777f, 1.777777777f, 1.f, -1.f);
+	Hazel::Scene m_Scene = m_Window->GetLayer();
+	Hazel::Layer m_Viewport = { 500, 500, 3 };
+	Hazel::Scene m_ViewportScene = Hazel::CreateReference<Hazel::Layer>(m_Viewport);
 
 	std::vector<Hazel::Command> m_Commands;
 	Hazel::TextureInterpolation m_Interpolation[2] = {Hazel::TextureInterpolation::Linear, Hazel::TextureInterpolation::Nearest};
 	uint8_t m_InterpolationIndex = 0;
 
-	Hazel::OpenGLFramebuffer m_Framebuffer = { 500, 500, 3 };
 };

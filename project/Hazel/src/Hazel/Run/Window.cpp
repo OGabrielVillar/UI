@@ -9,6 +9,7 @@
 #include "Graphics/Renderer/Renderer.h"
 #include "Device/Keyboard/Keyboard.h"
 #include "Device/Mouse/Mouse.h"
+#include "Input/Cursor.h"
 
 namespace Hazel {
 
@@ -50,33 +51,55 @@ namespace Hazel {
 		if (m_Flags.Contains(Window::Flag::Hidden))
 			glfwWindowHint(GLFW_VISIBLE, false);
 
-		/* Create a windowed mode window and its OpenGL context */
-		m_Window = glfwCreateWindow(m_Rect.width(), m_Rect.height(), m_Name.c_str(), NULL, NULL);
+		// Create Window
+		m_Window = glfwCreateWindow(m_Layer->GetWidth(), m_Layer->GetHeight(), m_Name.c_str(), NULL, NULL);
 
+		// Create Context
 		m_Context = CreateReference<OpenGLRenderingContext>(m_Window);
 		m_Context->Init();
 		
+		// Flag Iconified
+		if (m_Flags.Contains(Window::Flag::Iconified))
+			glfwIconifyWindow(m_Window);
+
+		// \/ \/ \/ ---Infinite cursor mode.--- \/ \/ \/
+		//glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		
+		int x, y, width, height;
+		glfwGetWindowPos(m_Window, &x, &y);
+		glfwGetWindowSize(m_Window, &width, &height);
+		m_Layer->SetSize({ width,height });
+		Renderer::SetWindowSize((float)width, (float)height);
+		m_Layer->SetPosition({ x,y });
+
 		if (!m_Window)
 		{
 			glfwTerminate();
 			return;
 		}
+	}
 
+	void Window::InitCallbacks()
+	{
 		glfwSetWindowUserPointer(m_Window, this);
 
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* glfwWindow, int width, int height)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
-			window.m_Rect.SetWidth(width);
-			window.m_Rect.SetHeight(height);
+			window.m_Layer->SetSize({ width,height });
 			Renderer::SetWindowSize((float)width, (float)height);
+			
+			EventWindowSize event(vec2int(width,height));
+			window.m_OnEventCallbackFn(event);
 		});
 		
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* glfwWindow, int x, int y)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
-			intRect& rect = window.m_Rect;
-			rect += vec2int(x, y) - rect.a();
+			window.m_Layer->SetPosition({ x,y });
+
+			EventWindowPosition event(vec2int(x,y));
+			window.m_OnEventCallbackFn(event);
 		});
 		
 		glfwSetWindowMaximizeCallback(m_Window, [](GLFWwindow* glfwWindow, int maximized)
@@ -107,6 +130,9 @@ namespace Hazel {
 			else
 				window.m_Flags.Remove(Window::Flag::Focused);
 			HZ_WIN_TRACE("Window focused ({})", focused);
+
+			EventWindowFocus event((bool)focused);
+			window.m_OnEventCallbackFn(event);
 		});
 
 	 // Keyboard Events
@@ -119,6 +145,7 @@ namespace Hazel {
 			if (action == GLFW_PRESS && key == GLFW_KEY_F11)
 				if (window.m_Flags.NotContains(Window::Flag::Maximazed))
 					glfwMaximizeWindow(window.m_Window);
+
 			EventKeyboardKey event((Keyboard::Key)key,(Keyboard::Action)action,(Keyboard::Modifier)mods);
 			window.m_OnEventCallbackFn(event);
 		});
@@ -126,6 +153,7 @@ namespace Hazel {
 		glfwSetCharCallback(m_Window, [](GLFWwindow* glfwWindow, unsigned int character)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+
 			EventKeyboardText event(character);
 			window.m_OnEventCallbackFn(event);
 		});
@@ -134,13 +162,18 @@ namespace Hazel {
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* glfwWindow, double xpos, double ypos)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+
 			EventCursorPosition event(vec2(xpos,ypos));
 			window.m_OnEventCallbackFn(event);
+
+			// \/ \/ \/ ---To lock cursor at 0,0.--- \/ \/ \/
+			//glfwSetCursorPos(window.m_Window,0.0,0.0);
 		});
 		
 		glfwSetCursorEnterCallback(m_Window, [](GLFWwindow* glfwWindow, int entered)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+
 			EventCursorEntry event(entered);
 			window.m_OnEventCallbackFn(event);
 		});
@@ -149,6 +182,7 @@ namespace Hazel {
 		glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* glfwWindow, int button, int action, int mods)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+
 			EventMouseButton event((Mouse::Button)button,(Mouse::Action)action,(Keyboard::Modifier)mods);
 			window.m_OnEventCallbackFn(event);
 		});
@@ -156,24 +190,10 @@ namespace Hazel {
 		glfwSetScrollCallback(m_Window, [](GLFWwindow* glfwWindow, double xoffset, double yoffset)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
+
 			EventMouseScroll event(vec2(xoffset, yoffset));
 			window.m_OnEventCallbackFn(event);
 		});
-
-		int monitor_width, monitor_height;
-		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), nullptr, nullptr, &monitor_width, &monitor_height);
-		
-		glfwSetWindowPos(m_Window,
-			(monitor_width / 2) - (m_Rect.width() / 2),
-			(monitor_height / 2) - (m_Rect.height() / 2));
-		
-		// Flag Iconified
-		if (m_Flags.Contains(Window::Flag::Iconified))
-			glfwIconifyWindow(m_Window);
-
-		int width, height;
-		glfwGetWindowSize(m_Window, &width, &height);
-		Renderer::SetWindowSize((float)width, (float)height);
 	}
 
 	void Window::Run()
@@ -185,6 +205,18 @@ namespace Hazel {
 	void Window::SetSize(int width, int height)
 	{
 		glfwSetWindowSize(m_Window, width, height);
+	}
+
+	void Window::CenterWindow()
+	{
+		// Monitor
+		int monitor_width, monitor_height;
+		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), nullptr, nullptr, &monitor_width, &monitor_height);
+
+		// Set Up Position
+		glfwSetWindowPos(m_Window,
+			(monitor_width / 2) - (m_Layer->GetWidth() / 2),
+			(monitor_height / 2) - (m_Layer->GetHeight() / 2));
 	}
 
 	void Window::Minimize()

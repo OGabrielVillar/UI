@@ -7,6 +7,7 @@
 
 #include "Graphics/Renderer/RenderingContext.h"
 #include "Input/Event.h"
+#include "Project/Layer.h"
 
 namespace Hazel {
 
@@ -30,7 +31,8 @@ namespace Hazel {
 		Window(const std::string& name, Flags flags = Flag::Focused);
 		~Window();
 	 public:
-		void Init();
+		void Init(); 
+		void InitCallbacks();
 		void Shutdown();
 	 public:
 		void Run();
@@ -42,18 +44,24 @@ namespace Hazel {
 
 		void SetPosition(int width, int height);
 		void SetSize(int width, int height);
+		void CenterWindow();
 		void SetOnEventCallback(const EventCallbackFn& callback) { m_OnEventCallbackFn = callback; }
 
 		void SetName(std::string&& name) { m_Name = name; }
 		void SetColor(const vec4& color) { m_Context->SetColor(color); }
 
-		glm::vec<2,int> GetResolution() const { return m_Rect.size(); }
+		const Ref<Layer>& GetLayer() { return m_Layer; }
+		glm::vec<2,int> GetResolution() const { 
+			return m_Layer->GetSize(); 
+		}
 	 private:
 		GLFWwindow* m_Window = nullptr;
 		Reference<RenderingContext> m_Context = nullptr;
 		std::string m_Name;
 		Flags m_Flags;
-		intRect m_Rect = intRect::WH(1280, 720);
+		//intRect m_Rect = intRect::WH(1280, 720);
+		//intRect m_Rect = intRect::WH(720, 720);
+		Ref<Layer> m_Layer = CreateReference<Layer>(intRect::WH(720, 720));
 		EventCallbackFn m_OnEventCallbackFn;
 	};
 

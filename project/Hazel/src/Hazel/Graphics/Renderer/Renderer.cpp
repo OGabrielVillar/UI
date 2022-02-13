@@ -67,18 +67,20 @@ namespace Hazel
 		RenderCommand::Clear();
 	}
 
-	void Renderer::BeginScene(Camera& camera)
+	void Renderer::BeginScene(Scene& scene)
 	{
-		s_SceneData->viewProjectionMatrix = &camera.GetViewProjectionMatrix();
-	}
-
-	void Renderer::BeginScene(const vec2& resolution)
-	{
-		s_SceneData->resolution = resolution;
+		scene.GetLayer().Bind();
+		s_SceneData->viewProjectionMatrix = &(scene.GetCamera().GetViewProjectionMatrix());
+		s_SceneData->resolution = (vec2)scene.GetLayer().GetSize();
 	}
 
 	void Renderer::EndScene()
 	{
+	}
+
+	void Renderer::UnbindFramebuffers(const vec2int& resolution)
+	{
+		RenderCommand::UnbindFramebuffers(resolution);
 	}
 
 	void Renderer::SetWindowSize(float width, float height) 

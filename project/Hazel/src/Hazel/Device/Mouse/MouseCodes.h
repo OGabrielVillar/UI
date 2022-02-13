@@ -9,13 +9,6 @@ using uint16_t = unsigned short;
 
 namespace Hazel {
 
-	enum class CursorMode
-	{
-		Normal = 0,
-		Hidden = 1,
-		Locked = 2
-	};
-	
 	enum class MouseAction : uint8_t
 	{
 		Release = 0,

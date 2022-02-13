@@ -1,6 +1,6 @@
 #include "pch.h"
-
 #include "Application.h"
+
 #include "Graphics/Renderer/Renderer.h"
 
 namespace Hazel 
@@ -10,13 +10,15 @@ namespace Hazel
 		HZ_APP_TRACE("Initializing {0}... ", name);
 
 		m_Window = CreateReference<Window>(name, flags);
+
 		m_Window->Init();
 		
+		m_Window->SetOnEventCallback([this](const Event& e) { return OnEvent(e); });
+		m_Window->InitCallbacks();
+
 		Renderer::Init();
 
 		m_dt = m_dt_timer.update().count();
-
-		m_Window->SetOnEventCallback([this](const Event& e) { return OnEvent(e); });
 	}
 	Application::~Application()
 	{

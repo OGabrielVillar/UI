@@ -37,17 +37,7 @@ void EditorApp::InitShit()
 
 	// Commands:
 	{ // 
-
-		m_Commands.push_back(Command());
-		m_Commands.back().SetFunction([this]() 
-		{
-			auto rect = Rect::XYWH(m_TexturePosition, m_TextureSize);
-			HZ_APP_INFO("ax {0}, ay {1}, bx {2}, by {3}.", rect.a_x, rect.a_y, rect.b_x, rect.b_y);
-			return true;
-		});
-		m_Commands.back().AddTrigger(EventKeyboardKey(Keyboard::Key::F8, Keyboard::Action::Release));
-
-
+		
 		m_Commands.push_back(Command());
 		m_Commands.back().SetFunction([this]() 
 		{
@@ -57,8 +47,8 @@ void EditorApp::InitShit()
 			return true;
 		});
 		m_Commands.back().AddTrigger(EventKeyboardKey(Keyboard::Key::F9, Keyboard::Action::Release));
-
-
+		
+		
 		m_Commands.push_back(Command());
 		m_Commands.back().SetFunction<EventCursorPosition>([this](const EventCursorPosition* event) 
 		{
@@ -66,12 +56,32 @@ void EditorApp::InitShit()
 			return true;
 		});
 		m_Commands.back().AddTrigger(EventCursorPosition());
+
+
+		m_Commands.push_back(Command());
+		m_Commands.back().SetFunction<EventMouseScroll>([this](const EventMouseScroll* event) 
+		{
+			m_ViewportScene.GetCamera().GetTransform().Scale(1.f - (0.1f * event->offset.y));
+			return true;
+		});
+		m_Commands.back().AddTrigger(EventMouseScroll());
+
+
+		m_Commands.push_back(Command());
+		m_Commands.back().SetFunction<EventWindowSize>([this](const EventWindowSize* event) 
+		{
+			vec2 resolution = (vec2)event->size;
+			vec2 aspectRatio (resolution / resolution.y);
+			m_Scene.GetCamera().SetAspectRatio(aspectRatio);
+			return true;
+		});
+		m_Commands.back().AddTrigger(EventWindowSize());
 	}
 
 	// --- Renderer Initialization
-
-	//Renderer::SetClearColor(vec4{ 0.05f, 0.05f, 0.05f, .95f });
-	Renderer::SetClearColor(vec4{ 1.0f, 0.0f, 1.0f, 1.f });
+	vec2 resolution = (vec2)m_Window.get()->GetResolution();
+	vec2 aspectRatio (resolution / resolution.y);
+	m_Scene.GetCamera().SetAspectRatio(aspectRatio);
 
 	// --- Texture
 
@@ -158,61 +168,6 @@ void EditorApp::InitShit()
 
 	m_Shader = Shader::Create("Triangle", vertexSrc, fragmentSrc);
 
-
-	// --- Square
-	m_SquareVA = VertexArray::Create();
-
-	float squareVertices[] {
-		-0.5f, -0.5f, 0.f,
-		-0.5f,  0.5f, 0.f,
-		 0.5f,  0.5f, 0.f,
-		 0.5f, -0.5f, 0.f,
-	};
-	Reference<BufferLayout> squareBufferLayout(new BufferLayout {
-		{BufferLayoutDataType::Float3, "a_Position"},
-	});
-
-	Reference<VertexBuffer> squareVB = VertexBuffer::Create(squareVertices,sizeof(squareVertices),squareBufferLayout);
-
-	m_SquareVA->AddVertexBuffer(squareVB);
-
-	uint32_t squareIndices[] =  { 0, 1, 2, 2, 3, 0 };
-	Reference<IndexBuffer> squareIB = IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t));
-	m_SquareVA->SetIndexBuffer(squareIB);
-
-	string vertexSrc_square = R"(
-		#version 330 core
-		
-		layout(location = 0) in vec3 a_Position;
-
-		uniform mat4 u_ViewProjection;
-		uniform mat4 u_Transform;
-
-
-		out vec3 v_Position;
-
-		void main()
-		{
-			v_Position = a_Position;
-			gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
-		}
-	)";
-		
-	string fragmentSrc_square = R"(
-		#version 330 core
-		
-		layout(location = 0) out vec4 color;
-
-		in vec3 v_Position;
-
-		void main()
-		{
-			color = vec4(v_Position * 0.5 + 0.5, 1.0);
-		}
-	)";
-			//color = vec4(v_Position * 0.5 + 0.5, 1.0);
-
-	m_SquareShader = Shader::Create("SolidRect", vertexSrc_square, fragmentSrc_square);
 }
 
 void EditorApp::TestShit()
@@ -220,11 +175,8 @@ void EditorApp::TestShit()
 	using namespace Hazel;
 
 	Renderer::Clear();
-	
-	//
-	m_Framebuffer.Bind();
 
-	Renderer::BeginScene(m_Camera);
+	Renderer::BeginScene(m_ViewportScene);
 		
 	m_Texture->Bind();
 	Renderer::Submit(m_TextureShader, m_TextureVA);
@@ -232,15 +184,16 @@ void EditorApp::TestShit()
 	Renderer::Submit(m_Shader, m_VertexArray);
 
 	Renderer::EndScene();
+	// ---------------------
+	Renderer::BeginScene(m_Scene);
 
-	//
-	m_Framebuffer.Unbind(m_Window->GetResolution());
-
-	Renderer::BeginScene(m_Window->GetResolution());
+	//Renderer::DrawRect(m_Rect, m_RectColor);
 	
-	Renderer::DrawRect(m_Rect, m_RectColor);
-
-	Renderer::DrawTexture(Rect::XYWH(m_TexturePosition, m_TextureSize), m_Framebuffer.GetTexture());
+	Renderer::DrawTexture(Rect::XYWH(m_TexturePosition, m_TextureSize), m_ViewportScene.GetLayer().GetTexture());
+	//Renderer::DrawTexture(Rect::XYWH(m_TexturePosition, m_TextureSize), *m_Texture);
+	
+	Renderer::DrawTexture(m_Rect, m_ViewportScene.GetLayer().GetTexture());
 
 	Renderer::EndScene();
+	// ---------------------
 }

@@ -2,12 +2,6 @@
 
 #include "Window.h"
 
-#include "Graphics/Renderer/Shader.h"
-#include "Graphics/Renderer/VertexBuffer.h"
-#include "Graphics/Renderer/IndexBuffer.h"
-#include "Graphics/Renderer/VertexArray.h"
-#include "Scene/Camera.h"
-
 namespace Hazel {
 
 	class Application {

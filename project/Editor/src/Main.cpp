@@ -6,6 +6,7 @@
 Hazel::Application* Hazel::CreateApplication()
 {
 
-	return new EditorApp("Hazel Editor");
+	//return new EditorApp("Hazel Editor", Hazel::Window::Flag::Transparent | Hazel::Window::Flag::Focused);
+	return new EditorApp("Hazel Editor", Window::Flag::Decorated | Hazel::Window::Flag::Focused);
 
 }

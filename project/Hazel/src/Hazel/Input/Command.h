@@ -2,6 +2,7 @@
 
 #include "Device/Keyboard/Keyboard.h"
 #include "Device/Mouse/Mouse.h"
+#include "Input/Cursor.h"
 
 namespace Hazel {
 
@@ -69,6 +70,9 @@ namespace Hazel {
 		#define CASE(TYPE) case EventType::TYPE: return Handle<Event ## TYPE>(static_cast<const Event ## TYPE ## &>(event))
 			switch (event.type)
 			{
+				CASE(WindowPosition);
+				CASE(WindowSize);
+				CASE(WindowFocus);
 				CASE(CursorPosition);
 				CASE(CursorEntry);
 				CASE(MouseButton);

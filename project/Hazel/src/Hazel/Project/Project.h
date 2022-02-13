@@ -1,14 +1,22 @@
 #pragma once
 
-namespace Hazel 
-{
+#include "Input/Event.h"
+#include "Layer.h"
 
-	class Project {
+namespace Hazel {
+
+	struct ProjectInformation
+	{
+		std::string name;
+	};
+
+	class Project 
+	{
 	public:
-		void Run(InputPack inputs);
+		void Run(const Event& event);
 	private:
-		Entities m_Entities;
-		RunCycle m_RunCycle;
+		ProjectInformation m_Information;
+		Ref<Layer> m_Layer;
 	};
 
 }

@@ -17,6 +17,7 @@ namespace Hazel{
 		virtual void SetClearColor(const vec4& color) = 0;
 		virtual void Clear() = 0;
 		virtual void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) = 0;
+		virtual void UnbindFramebuffers(const vec2int& resolution) = 0;
 		
 		virtual void SetWindowSize(float width, float height) = 0;
 

@@ -29,7 +29,11 @@ namespace Hazel
 	enum class TriggerFlag : uint8_t {
 		Any = BIT(0)
 	};
-	//[Trigger Type]
+
+	// --------------------
+	// --- Trigger Type ---
+	// --------------------
+
 	struct TriggerType {
 		using Flag = TriggerFlag;
 		using Flags = Flags<TriggerFlag>;
@@ -53,5 +57,36 @@ namespace Hazel
 	private:
 		underlying_t m_Value = 0;
 		Flags m_Flags;
+	};
+
+	// ---------------------
+	// --- Window Events ---
+	// ---------------------
+
+	struct EventWindowSize : Event {
+		EventWindowSize(const vec2int& size = { 0.f , 0.f })
+			: Event(EventType::WindowSize), size(size)
+		{}
+		inline bool operator==(const EventWindowSize& other) const { return true; }
+		inline static EventType GetType() { return EventType::WindowSize; }
+		vec2int size;
+	};
+
+	struct EventWindowPosition : Event {
+		EventWindowPosition(const vec2int& position = { 0.f , 0.f })
+			: Event(EventType::WindowPosition), position(position)
+		{}
+		inline bool operator==(const EventWindowPosition& other) const { return true; }
+		inline static EventType GetType() { return EventType::WindowPosition; }
+		vec2int position;
+	};
+
+	struct EventWindowFocus : Event {
+		EventWindowFocus(bool focused = true)
+			: Event(EventType::WindowFocus), focused(focused)
+		{}
+		inline bool operator==(const EventWindowFocus& other) const { return true; }
+		inline static EventType GetType() { return EventType::WindowFocus; }
+		bool focused;
 	};
 }
