@@ -3,8 +3,9 @@
 
 namespace Hazel {
 
-	Camera::Camera(const vec2& aspectRatio)
-		: m_CameraComponent(aspectRatio, m_TransformComponent.GetMat4())
+	Camera::Camera(entt::registry& registry, const vec2& aspectRatio)
+	  : Entity(registry),
+		m_CameraComponent(aspectRatio, m_TransformComponent.GetMat4())
 	{
 	}
 

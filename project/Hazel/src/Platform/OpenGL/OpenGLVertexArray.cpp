@@ -40,7 +40,8 @@ namespace Hazel {
 			case Hazel::BufferLayoutDataType::Mat3:		  return GL_FLOAT;
 			case Hazel::BufferLayoutDataType::Mat4:		  return GL_FLOAT;
 		}
-		HZ_ASSERT(false,"[Hazel::ToOpenGLBaseType] Unsupported \"BufferLayoutDataType\" case!")
+		HZ_ASSERT(false,"[Hazel::ToOpenGLBaseType] Unsupported \"BufferLayoutDataType\" case!");
+		return 0;
 	}
 
 	void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vectorBuffer)

@@ -17,11 +17,19 @@ namespace Hazel
 		inline void SetCamera(const Ref<Camera>& camera) { m_Camera = camera; }
 
 		inline Layer& GetLayer() { return *m_Layer; }
-		inline Camera& GetCamera() { return *m_Camera; }
+		//inline Camera& GetCamera() { return *m_Camera; }
+		inline const glm::mat4& GetCameraMatrix() 
+		{ 
+			if (m_Camera == nullptr) {
+				HZ_ASSERT(false, "Scene::GetLayer: Doesn't handle the situation in case of not having a camera!")
+				return glm::mat4(1.f);
+			} else
+				return m_Camera->GetViewProjectionMatrix(); 
+		}
 
 	private:
-		Ref<Layer> m_Layer;
-		Ref<Camera> m_Camera = CreateReference<Camera>(vec2(1.f,1.f));
+		Ref<Layer> m_Layer = nullptr;
+		Ref<Camera> m_Camera = nullptr;
 	};
 
 }

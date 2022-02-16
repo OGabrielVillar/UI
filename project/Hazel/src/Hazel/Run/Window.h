@@ -38,7 +38,6 @@ namespace Hazel {
 		void Run();
 		void Minimize();
 		void Resume();
-		//void Maximize();
 		int IsAlive();
 		void Close();
 
@@ -49,6 +48,7 @@ namespace Hazel {
 
 		void SetName(std::string&& name) { m_Name = name; }
 		void SetColor(const vec4& color) { m_Context->SetColor(color); }
+		void SetTitle(const std::string& title);
 
 		const Ref<Layer>& GetLayer() { return m_Layer; }
 		glm::vec<2,int> GetResolution() const { 
@@ -59,8 +59,8 @@ namespace Hazel {
 		Reference<RenderingContext> m_Context = nullptr;
 		std::string m_Name;
 		Flags m_Flags;
-		//intRect m_Rect = intRect::WH(1280, 720);
-		//intRect m_Rect = intRect::WH(720, 720);
+		vec2int m_TopLeft;
+		vec2int m_MonitorResolution;
 		Ref<Layer> m_Layer = CreateReference<Layer>(intRect::WH(720, 720));
 		EventCallbackFn m_OnEventCallbackFn;
 	};

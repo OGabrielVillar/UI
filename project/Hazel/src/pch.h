@@ -50,6 +50,7 @@
 
 #include "Core/Math/MathCommon.h"
 #include "Core/Math/Random.h"
+#include "Core/UUID.h"
 
 #include "Core/Geometry/Rect.h"
 #include "Core/Geometry/Polygon.h"

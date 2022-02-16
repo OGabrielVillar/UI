@@ -61,7 +61,7 @@ void EditorApp::InitShit()
 		m_Commands.push_back(Command());
 		m_Commands.back().SetFunction<EventMouseScroll>([this](const EventMouseScroll* event) 
 		{
-			m_ViewportScene.GetCamera().GetTransform().Scale(1.f - (0.1f * event->offset.y));
+			m_ViewportCamera->GetTransform().Scale(1.f - (0.1f * event->offset.y));
 			return true;
 		});
 		m_Commands.back().AddTrigger(EventMouseScroll());
@@ -72,16 +72,23 @@ void EditorApp::InitShit()
 		{
 			vec2 resolution = (vec2)event->size;
 			vec2 aspectRatio (resolution / resolution.y);
-			m_Scene.GetCamera().SetAspectRatio(aspectRatio);
+			m_Camera->SetAspectRatio(aspectRatio);
 			return true;
 		});
 		m_Commands.back().AddTrigger(EventWindowSize());
 	}
 
+	// --- Project Initialization
+	m_Camera = m_Project.CreateCamera({1.f,1.f});
+	m_Scene.SetCamera(m_Camera);
+
+	m_ViewportCamera = m_Project.CreateCamera({1.f,1.f});
+	m_ViewportScene.SetCamera(m_ViewportCamera);
+
 	// --- Renderer Initialization
 	vec2 resolution = (vec2)m_Window.get()->GetResolution();
 	vec2 aspectRatio (resolution / resolution.y);
-	m_Scene.GetCamera().SetAspectRatio(aspectRatio);
+	m_Camera->SetAspectRatio(aspectRatio);
 
 	// --- Texture
 

@@ -70,7 +70,11 @@ namespace Hazel {
 		glfwGetWindowSize(m_Window, &width, &height);
 		m_Layer->SetSize({ width,height });
 		Renderer::SetWindowSize((float)width, (float)height);
-		m_Layer->SetPosition({ x,y });
+		m_TopLeft.x = x;
+		m_TopLeft.y = y;
+
+		// Monitor
+		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), nullptr, nullptr, &m_MonitorResolution.x, &m_MonitorResolution.y);
 
 		if (!m_Window)
 		{
@@ -96,7 +100,8 @@ namespace Hazel {
 		glfwSetWindowPosCallback(m_Window, [](GLFWwindow* glfwWindow, int x, int y)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
-			window.m_Layer->SetPosition({ x,y });
+			window.m_TopLeft.x = x;
+			window.m_TopLeft.y = y;
 
 			EventWindowPosition event(vec2int(x,y));
 			window.m_OnEventCallbackFn(event);
@@ -202,6 +207,28 @@ namespace Hazel {
 		m_Context->SwapBuffers();
 	}
 	
+	void Window::SetPosition(int width, int height)
+	{
+		vec2int resolutionCap = m_MonitorResolution - 50;
+		int w, h;
+
+		if (width > resolutionCap.x)
+			w = resolutionCap.x;
+		else if (width < 0)
+			w = 0;
+		else
+			w = width;
+
+		if (height > resolutionCap.y)
+			h = resolutionCap.y;
+		else if (height < 0)
+			h = 0;
+		else
+			h = height;
+
+		glfwSetWindowPos(m_Window, w, h);
+	}
+
 	void Window::SetSize(int width, int height)
 	{
 		glfwSetWindowSize(m_Window, width, height);
@@ -209,14 +236,15 @@ namespace Hazel {
 
 	void Window::CenterWindow()
 	{
-		// Monitor
-		int monitor_width, monitor_height;
-		glfwGetMonitorWorkarea(glfwGetPrimaryMonitor(), nullptr, nullptr, &monitor_width, &monitor_height);
-
 		// Set Up Position
 		glfwSetWindowPos(m_Window,
-			(monitor_width / 2) - (m_Layer->GetWidth() / 2),
-			(monitor_height / 2) - (m_Layer->GetHeight() / 2));
+			(m_MonitorResolution.x / 2) - (m_Layer->GetWidth() / 2),
+			(m_MonitorResolution.y / 2) - (m_Layer->GetHeight() / 2));
+	}
+
+	void Window::SetTitle(const std::string& title)
+	{
+		glfwSetWindowTitle(m_Window, title.c_str());
 	}
 
 	void Window::Minimize()

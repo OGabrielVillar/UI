@@ -35,7 +35,7 @@ namespace Hazel
 
 	void OpenGLRendererAPI::SetWindowSize(float width, float height)
 	{
-		glViewport(0, 0, width, height);
+		glViewport(0, 0, (int)width, (int)height);
 	}
 
 }

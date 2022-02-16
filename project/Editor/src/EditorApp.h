@@ -20,6 +20,10 @@ class EditorApp : public Hazel::Application {
 	void TestShit();
 
 private:// Shit
+	Hazel::Project m_Project;
+	Hazel::Ref<Hazel::Camera> m_ViewportCamera;
+	Hazel::Ref<Hazel::Camera> m_Camera;
+
 	Hazel::ShaderLibrary m_ShaderLibrary;
 	Hazel::Reference<Hazel::Shader> m_TextureShader;
 	Hazel::Reference<Hazel::VertexArray> m_TextureVA;
@@ -34,7 +38,6 @@ private:// Shit
 	Hazel::vec2 m_TextureSize = { 500.f, 500.f };
 	Hazel::vec2 m_TexturePosition = { 0.f, 0.f };
 	bool m_IsMoving = false;
-	//Hazel::Rect m_Rect = Hazel::Rect(50.f,50.f,370.f,170.f) / 50.f;
 	Hazel::vec4 m_RectColor = { 0.9f, 0.75f, 0.8f, 1.f };
 
 	Hazel::Scene m_Scene = m_Window->GetLayer();
