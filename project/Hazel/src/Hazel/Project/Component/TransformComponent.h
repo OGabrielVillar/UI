@@ -2,6 +2,8 @@
 
 #include "pch.h"
 
+#include "Component.h"
+
 namespace Hazel {
 
 	struct TransformComponent
@@ -17,10 +19,10 @@ namespace Hazel {
 
 		const Ref<const glm::mat4> GetMat4() const { return m_Transform; }
 	private:
-	Ref<glm::mat4> m_Transform = CreateReference<glm::mat4>(glm::mat4(1.f));
-	vec_t m_Position = { 0.f, 0.f, 0.f};
-	vec_t m_Scale = { 1.f, 1.f, 1.f};
-	float m_Rotation = 0.f;
+		Ref<glm::mat4> m_Transform = CreateReference<glm::mat4>(glm::mat4(1.f));
+		vec_t m_Position = { 0.f, 0.f, 0.f};
+		vec_t m_Scale = { 1.f, 1.f, 1.f};
+		float m_Rotation = 0.f;
 	};
 
 }

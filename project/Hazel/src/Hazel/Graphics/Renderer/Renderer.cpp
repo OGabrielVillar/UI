@@ -69,9 +69,9 @@ namespace Hazel
 
 	void Renderer::BeginScene(Scene& scene)
 	{
-		scene.GetLayer().Bind();
+		scene.GetCanvas().Bind();
 		s_SceneData->viewProjectionMatrix = &scene.GetCameraMatrix();
-		s_SceneData->resolution = (vec2)scene.GetLayer().GetSize();
+		s_SceneData->resolution = (vec2)scene.GetCanvas().GetSize();
 	}
 
 	void Renderer::EndScene()

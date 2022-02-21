@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Transform.h"
+#include "TransformComponent.h"
 
 #include "glm/gtc/matrix_transform.hpp"
 

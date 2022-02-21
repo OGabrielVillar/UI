@@ -2,15 +2,19 @@
 
 #include "Core/UUID.h"
 
+#include "Component.h"
 
+namespace Hazel {
 
-namespace Hazel::Component {
-
-	struct Information 
+	struct InformationComponent
 	{
-		Information(const std::string& name, UUID::Type type = UUID::Type::Asset);
+	public:
+		InformationComponent(const std::string& name, UUID::Type type = UUID::Type::Asset);
+
+	private:
 		std::string name;
 		UUID uuid;
+
 	};
 
 }

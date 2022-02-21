@@ -21,15 +21,12 @@ class EditorApp : public Hazel::Application {
 
 private:// Shit
 	Hazel::Project m_Project;
-	Hazel::Ref<Hazel::Camera> m_ViewportCamera;
-	Hazel::Ref<Hazel::Camera> m_Camera;
+	Hazel::Ref<Hazel::CameraEntity> m_ViewportCamera;
+	Hazel::Ref<Hazel::CameraEntity> m_Camera;
 
 	Hazel::ShaderLibrary m_ShaderLibrary;
 	Hazel::Reference<Hazel::Shader> m_TextureShader;
 	Hazel::Reference<Hazel::VertexArray> m_TextureVA;
-
-	Hazel::Reference<Hazel::Shader> m_Shader;
-	Hazel::Reference<Hazel::VertexArray> m_VertexArray;
 
 	Hazel::Ref<Hazel::Texture> m_Texture;
 	Hazel::Ref<Hazel::Texture> m_Texture2;
@@ -40,11 +37,10 @@ private:// Shit
 	bool m_IsMoving = false;
 	Hazel::vec4 m_RectColor = { 0.9f, 0.75f, 0.8f, 1.f };
 
-	Hazel::Scene m_Scene = m_Window->GetLayer();
-	Hazel::Layer m_Viewport = { 500, 500, 3 };
-	Hazel::Scene m_ViewportScene = Hazel::CreateReference<Hazel::Layer>(m_Viewport);
+	Hazel::Scene m_Scene = m_Window->GetCanvas();
+	Hazel::Canvas m_Viewport = { 500, 500, 3 };
+	Hazel::Scene m_ViewportScene = Hazel::CreateReference<Hazel::Canvas>(m_Viewport);
 
-	std::vector<Hazel::Command> m_Commands;
 	Hazel::TextureInterpolation m_Interpolation[2] = {Hazel::TextureInterpolation::Linear, Hazel::TextureInterpolation::Nearest};
 	uint8_t m_InterpolationIndex = 0;
 

@@ -5,13 +5,16 @@
 namespace Hazel::Geometry
 {
 
-	template<uint32_t dimensions, typename type = float>
-	struct Circle {
-		type radius;
-		glm::vec<dimensions,type> center;
-	};
+	namespace Template {
 
-	using Circle2D = Circle<2>;
-	using Circle3D = Circle<3>;
+		template<uint32_t dimensions, typename type = float>
+		struct Circle {
+			type radius;
+			glm::vec<dimensions,type> center;
+		};
+
+	}
+	using Circle = Template::Circle<2>;
+	using Sphere = Template::Circle<3>;
 
 }

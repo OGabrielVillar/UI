@@ -1,17 +1,18 @@
 [Application]
-  [ApplicationInformation]
-  [Window] // Serves like a root layer.
-	[Entities...]
-	[Project]  // Serves like a organizer.
-	  [ProjectInformations]
-	  [ProjectSettings]
-	  [ProjectLayer] // Every project is on a different layer.
-        [Entities...]
-		  [...Layer] // Serves to set up a new scope of input and a new framebuffer.
-		    [LayerInformation]
-		    [Entities...]
-		  [...UI]
-		    [UIInformation]
-		  [...Scene]
-		    [SceneInformation]
-		    [Camera]
+	[ApplicationInformation]
+	[Window] // Serves like a root layer.
+		[WindowCanvas]
+
+[Project]  // Serves like a organizer.(
+		[ProjectInformations]
+		[ProjectSettings]
+	)
+    [Entities...]
+		[...Canvas] // Serves to set up a new scope of input and a new framebuffer.
+		[LayerInformation]
+		[Entities...]
+		[...UI]
+		[UIInformation]
+		[...Scene]
+		[SceneInformation]
+		[Camera]

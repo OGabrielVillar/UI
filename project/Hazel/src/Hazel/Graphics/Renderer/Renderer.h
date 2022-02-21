@@ -29,6 +29,8 @@ namespace Hazel {
 
 		static void Submit(const std::shared_ptr<Shader>& shader, const std::shared_ptr<VertexArray>& vertexArray, const mat4& transform = mat4(1.f));
 		static void DrawRect(const Rect& rect, const vec4& color);
+		static void DrawLine(const vec2& rect, const vec4& color);
+		static void DrawCircle(const Circle& rect, const vec4& color);
 		static void DrawTexture(const Rect& rect, const Texture& texture);
 		/*static void DrawString(
 			const std::string& string, 

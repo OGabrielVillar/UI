@@ -2,6 +2,7 @@
 
 #include "EditorApp.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "Project/Component/CommandCardComponent.h"
 
 EditorApp::EditorApp(const std::string& name, Hazel::Window::Flags flags) 
 	: Application(name, flags)
@@ -14,11 +15,7 @@ void EditorApp::OnInit()
 	
 bool EditorApp::OnEvent(const Hazel::Event& event)
 {
-	for (auto& command : m_Commands) {
-		if (command.Handle(event))
-			return true;
-	}
-	return false;
+	return m_Project.OnEvent(event);
 }
 
 void EditorApp::OnShutdown() 
@@ -35,60 +32,66 @@ void EditorApp::InitShit()
 {
 	using namespace Hazel;
 
+	// --- Aspect Ratio
+	vec2 resolution = (vec2)m_Window.get()->GetResolution();
+	vec2 aspectRatio (resolution / resolution.y);
+
+	vec2 viewportResolution = m_Rect.size();
+	vec2 viewportAspectRatio (viewportResolution / viewportResolution.y);
+	m_Viewport.SetSize((vec2int)m_Rect.size());
+
+	// --- Project Initialization
+	m_Camera = m_Project.CreateCamera(aspectRatio);
+	m_Scene.SetCamera(m_Camera);
+
+	m_ViewportCamera = m_Project.CreateCamera({viewportAspectRatio});
+	m_ViewportScene.SetCamera(m_ViewportCamera);
+
+	auto commandCardEntity = m_Project.CreateEntity("Command Card");
+	auto commandCard = commandCardEntity.AddComponent<CommandCardComponent>();
+
 	// Commands:
-	{ // 
+	{
 		
-		m_Commands.push_back(Command());
-		m_Commands.back().SetFunction([this]() 
+		auto cmd = commandCard->AddCommand();
+		cmd->SetFunction([this]() 
 		{
 			m_Texture->SetInterpolation(m_Interpolation[m_InterpolationIndex]);
 			m_InterpolationIndex++;
 			m_InterpolationIndex %= 2;
 			return true;
 		});
-		m_Commands.back().AddTrigger(EventKeyboardKey(Keyboard::Key::F9, Keyboard::Action::Release));
+		cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::F9, Keyboard::Action::Release));
 		
 		
-		m_Commands.push_back(Command());
-		m_Commands.back().SetFunction<EventCursorPosition>([this](const EventCursorPosition* event) 
+		cmd = commandCard->AddCommand();
+		cmd->SetFunction<EventCursorPosition>([this](const EventCursorPosition* event) 
 		{
 			m_TexturePosition = event->position;
 			return true;
 		});
-		m_Commands.back().AddTrigger(EventCursorPosition());
+		cmd->AddTrigger(EventCursorPosition());
 
 
-		m_Commands.push_back(Command());
-		m_Commands.back().SetFunction<EventMouseScroll>([this](const EventMouseScroll* event) 
+		cmd = commandCard->AddCommand();
+		cmd->SetFunction<EventMouseScroll>([this](const EventMouseScroll* event) 
 		{
 			m_ViewportCamera->GetTransform().Scale(1.f - (0.1f * event->offset.y));
 			return true;
 		});
-		m_Commands.back().AddTrigger(EventMouseScroll());
+		cmd->AddTrigger(EventMouseScroll());
 
 
-		m_Commands.push_back(Command());
-		m_Commands.back().SetFunction<EventWindowSize>([this](const EventWindowSize* event) 
+		cmd = commandCard->AddCommand();
+		cmd->SetFunction<EventWindowSize>([this](const EventWindowSize* event) 
 		{
 			vec2 resolution = (vec2)event->size;
 			vec2 aspectRatio (resolution / resolution.y);
 			m_Camera->SetAspectRatio(aspectRatio);
 			return true;
 		});
-		m_Commands.back().AddTrigger(EventWindowSize());
-	}
-
-	// --- Project Initialization
-	m_Camera = m_Project.CreateCamera({1.f,1.f});
-	m_Scene.SetCamera(m_Camera);
-
-	m_ViewportCamera = m_Project.CreateCamera({1.f,1.f});
-	m_ViewportScene.SetCamera(m_ViewportCamera);
-
-	// --- Renderer Initialization
-	vec2 resolution = (vec2)m_Window.get()->GetResolution();
-	vec2 aspectRatio (resolution / resolution.y);
-	m_Camera->SetAspectRatio(aspectRatio);
+		cmd->AddTrigger(EventWindowSize());
+	}//*/
 
 	// --- Texture
 
@@ -120,61 +123,6 @@ void EditorApp::InitShit()
 	m_TextureShader->Bind();
 	std::dynamic_pointer_cast<OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
 
-	// --- Triangle
-
-	m_VertexArray = VertexArray::Create();
-
-	float vertices[] {
-		-0.5f, -0.2f, 0.0f , 1.f, 0.f, 1.f, 1.f,
-		 0.5f, -0.2f, 0.0f , 1.f, 1.f, 0.f, 1.f,
-		 0.0f, -1.0f, 0.0f , 0.f, 1.f, 1.f, 1.f,
-	};
-	Reference<BufferLayout> buffer_layout(new BufferLayout {
-		{BufferLayoutDataType::Float3, "a_Position"},
-		{BufferLayoutDataType::Float4, "a_Color"   },
-	});
-		
-	Reference<VertexBuffer> m_VertexBuffer = VertexBuffer::Create(vertices, sizeof(vertices), buffer_layout);
-	
-	m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-
-	uint32_t indices[] =  { 0, 1, 2 };
-	Reference<IndexBuffer> m_IndexBuffer = IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t));
-	m_VertexArray->SetIndexBuffer(m_IndexBuffer);
-		
-	string vertexSrc = R"(
-		#version 330 core
-		
-		layout(location = 0) in vec3 a_Position;
-		layout(location = 1) in vec4 a_Color;
-			
-		uniform mat4 u_ViewProjection;
-		uniform mat4 u_Transform;
-
-		out vec4 v_Color;
-
-		void main()
-		{
-			v_Color = a_Color;
-			gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
-		}
-	)";
-		
-	string fragmentSrc = R"(
-		#version 330 core
-		
-		layout(location = 0) out vec4 color;
-
-		in vec4 v_Color;
-
-		void main()
-		{
-			color = v_Color;
-		}
-	)";
-
-	m_Shader = Shader::Create("Triangle", vertexSrc, fragmentSrc);
-
 }
 
 void EditorApp::TestShit()
@@ -188,18 +136,16 @@ void EditorApp::TestShit()
 	m_Texture->Bind();
 	Renderer::Submit(m_TextureShader, m_TextureVA);
 
-	Renderer::Submit(m_Shader, m_VertexArray);
-
 	Renderer::EndScene();
 	// ---------------------
 	Renderer::BeginScene(m_Scene);
 
 	//Renderer::DrawRect(m_Rect, m_RectColor);
 	
-	Renderer::DrawTexture(Rect::XYWH(m_TexturePosition, m_TextureSize), m_ViewportScene.GetLayer().GetTexture());
+	//Renderer::DrawTexture(Rect::XYWH(m_TexturePosition, m_TextureSize), m_ViewportScene.GetCanvas().GetTexture());
 	//Renderer::DrawTexture(Rect::XYWH(m_TexturePosition, m_TextureSize), *m_Texture);
 	
-	Renderer::DrawTexture(m_Rect, m_ViewportScene.GetLayer().GetTexture());
+	Renderer::DrawTexture(m_Rect, m_ViewportScene.GetCanvas().GetTexture());
 
 	Renderer::EndScene();
 	// ---------------------

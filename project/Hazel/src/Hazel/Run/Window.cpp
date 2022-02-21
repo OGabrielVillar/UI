@@ -52,7 +52,7 @@ namespace Hazel {
 			glfwWindowHint(GLFW_VISIBLE, false);
 
 		// Create Window
-		m_Window = glfwCreateWindow(m_Layer->GetWidth(), m_Layer->GetHeight(), m_Name.c_str(), NULL, NULL);
+		m_Window = glfwCreateWindow(m_Canvas->GetWidth(), m_Canvas->GetHeight(), m_Name.c_str(), NULL, NULL);
 
 		// Create Context
 		m_Context = CreateReference<OpenGLRenderingContext>(m_Window);
@@ -68,7 +68,7 @@ namespace Hazel {
 		int x, y, width, height;
 		glfwGetWindowPos(m_Window, &x, &y);
 		glfwGetWindowSize(m_Window, &width, &height);
-		m_Layer->SetSize({ width,height });
+		m_Canvas->SetSize({ width,height });
 		Renderer::SetWindowSize((float)width, (float)height);
 		m_TopLeft.x = x;
 		m_TopLeft.y = y;
@@ -90,7 +90,7 @@ namespace Hazel {
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* glfwWindow, int width, int height)
 		{
 			Window& window = *((Window*)glfwGetWindowUserPointer(glfwWindow));
-			window.m_Layer->SetSize({ width,height });
+			window.m_Canvas->SetSize({ width,height });
 			Renderer::SetWindowSize((float)width, (float)height);
 			
 			EventWindowSize event(vec2int(width,height));
@@ -238,8 +238,8 @@ namespace Hazel {
 	{
 		// Set Up Position
 		glfwSetWindowPos(m_Window,
-			(m_MonitorResolution.x / 2) - (m_Layer->GetWidth() / 2),
-			(m_MonitorResolution.y / 2) - (m_Layer->GetHeight() / 2));
+			(m_MonitorResolution.x / 2) - (m_Canvas->GetWidth() / 2),
+			(m_MonitorResolution.y / 2) - (m_Canvas->GetHeight() / 2));
 	}
 
 	void Window::SetTitle(const std::string& title)

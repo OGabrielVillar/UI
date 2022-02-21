@@ -1,9 +1,8 @@
 include "./premake/premake_customization/solution_items.lua"
 
 workspace "Hazel"
-	architecture "x64"
-
     startproject "Editor"
+    architecture "x86_64"
 
 	configurations
 	{

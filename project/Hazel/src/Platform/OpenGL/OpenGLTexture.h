@@ -10,7 +10,7 @@ namespace Hazel {
 		OpenGLTexture(uint32_t width, uint32_t height, uint32_t channels);
 		virtual ~OpenGLTexture();
 
-		OpenGLTexture& operator=(const OpenGLTexture& other);
+		OpenGLTexture& operator=(OpenGLTexture&& other);
 
 		virtual void InitOnGPU() override;
 		

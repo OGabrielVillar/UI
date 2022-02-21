@@ -1,12 +1,16 @@
 #include "pch.h"
 #include "Entity.h"
 
+//#include <entt/entt.hpp>
+
+
 namespace Hazel {
 
-	Camera::Camera(entt::registry& registry, const vec2& aspectRatio)
-	  : Entity(registry),
-		m_CameraComponent(aspectRatio, m_TransformComponent.GetMat4())
+	CameraEntity::CameraEntity(entt::registry& registry, const vec2& aspectRatio)
+	  : Entity(registry)
 	{
+		auto transform = AddComponent<TransformComponent>();
+		AddComponent<CameraComponent>(aspectRatio, transform->GetMat4());
 	}
 
 }

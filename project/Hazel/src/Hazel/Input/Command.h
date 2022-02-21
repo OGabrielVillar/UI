@@ -8,9 +8,30 @@ namespace Hazel {
 
 #define BIND_FN(EVENT_TYPE, LAMBDA) std::function<bool(const EVENT_TYPE*)>(LAMBDA)
 	
+
+
 	//[Command Trigger]
 	struct CommandTrigger {
 	public:
+		CommandTrigger() = default;
+		CommandTrigger(const CommandTrigger& other) 
+		{
+			#define CASE(TYPE) case EventType::TYPE: m_Event = std::make_unique<Event ## TYPE>(*((Event ## TYPE*)&event)); break;
+			Event& event = *other.m_Event;
+			switch (event.type){
+				CASE(WindowPosition);
+				CASE(WindowSize);
+				CASE(WindowFocus);
+				CASE(CursorPosition);
+				CASE(CursorEntry);
+				CASE(MouseButton);
+				CASE(MouseScroll);
+				CASE(KeyboardKey);
+				CASE(KeyboardText);
+			}
+			#undef CASE
+		}
+
 		template<typename T,
 				 typename = typename std::enable_if<std::derived_from<T, Event>>::type>
 		CommandTrigger(const T& event)

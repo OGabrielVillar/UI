@@ -7,7 +7,7 @@
 
 #include "Graphics/Renderer/RenderingContext.h"
 #include "Input/Event.h"
-#include "Project/Layer.h"
+#include "Project/Canvas.h"
 
 namespace Hazel {
 
@@ -50,9 +50,9 @@ namespace Hazel {
 		void SetColor(const vec4& color) { m_Context->SetColor(color); }
 		void SetTitle(const std::string& title);
 
-		const Ref<Layer>& GetLayer() { return m_Layer; }
+		const Ref<Canvas>& GetCanvas() { return m_Canvas; }
 		glm::vec<2,int> GetResolution() const { 
-			return m_Layer->GetSize(); 
+			return m_Canvas->GetSize(); 
 		}
 	 private:
 		GLFWwindow* m_Window = nullptr;
@@ -61,7 +61,7 @@ namespace Hazel {
 		Flags m_Flags;
 		vec2int m_TopLeft;
 		vec2int m_MonitorResolution;
-		Ref<Layer> m_Layer = CreateReference<Layer>(intRect::WH(720, 720));
+		Ref<Canvas> m_Canvas = CreateReference<Canvas>(intRect::WH(720, 720));
 		EventCallbackFn m_OnEventCallbackFn;
 	};
 

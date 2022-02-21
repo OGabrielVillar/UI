@@ -1,9 +1,11 @@
 #include "pch.h"
 #include "InformationComponent.h"
 
-namespace Hazel::Component {
+namespace Hazel {
 
-	Information::Information(const std::string& name, UUID::Type type)
+	//Requires<> Information::Requisite;
+	
+	InformationComponent::InformationComponent(const std::string& name, UUID::Type type)
 		: name(name)
 	{
 		switch (type) {

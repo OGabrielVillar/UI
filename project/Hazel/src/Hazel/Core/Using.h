@@ -32,6 +32,9 @@ namespace Hazel {
 
 		using Geometry::Rect;
 		using Geometry::intRect;
+
+		using Geometry::Circle;
+		using Geometry::Sphere;
 	
 	 
 	// Visuals

@@ -5,14 +5,14 @@
 namespace Hazel
 {
 
-	class Layer 
+	class Canvas 
 	{
 	public:
-		Layer(intRect windowRect)
+		Canvas(intRect windowRect)
 		  : m_Frame(windowRect),
 			m_Framebuffer(nullptr)
 		{}
-		Layer(uint32_t width, uint32_t height, uint32_t channels)
+		Canvas(uint32_t width, uint32_t height, uint32_t channels)
 		  : m_Frame(intRect::WH(width, height)),
 			m_Framebuffer(Framebuffer::Create(width, height, channels))
 		{}
@@ -23,12 +23,16 @@ namespace Hazel
 
 		const Texture& GetTexture() const;
 
-		const void SetSize(const vec2int& size) { m_Frame.SetSize(size); }
+		const void SetSize(const vec2int& size) { 
+			m_Frame.SetSize(size); 
+			if (m_Framebuffer != nullptr)
+				m_Framebuffer->Resize(size); 
+		}
 		const void SetPosition(const vec2int& position) { m_Frame.SetPosition(position); }
 		void Bind();
 	private:
 		intRect m_Frame;
-		Ref<Framebuffer> m_Framebuffer;
+		Ref<Framebuffer> m_Framebuffer = nullptr;
 	};
 
 }

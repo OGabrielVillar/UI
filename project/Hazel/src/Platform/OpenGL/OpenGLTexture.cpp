@@ -27,13 +27,15 @@ namespace Hazel {
 
 	OpenGLTexture::~OpenGLTexture()
 	{
-		glDeleteTextures(1, &m_RendererID);
+		if (m_RendererID != -1)
+			glDeleteTextures(1, &m_RendererID);
 	}
 
-	OpenGLTexture& OpenGLTexture::operator=(const OpenGLTexture& other)
+	OpenGLTexture& OpenGLTexture::operator=(OpenGLTexture&& other)
 	{
 		glDeleteTextures(1, &m_RendererID);
 		m_RendererID = other.m_RendererID;
+		other.m_RendererID = -1;
 		m_Width = other.m_Width;
 		m_Height = other.m_Height;
 		m_Channels = other.m_Channels;

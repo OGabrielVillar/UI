@@ -1,15 +1,15 @@
 #include "pch.h"
-#include "Layer.h"
+#include "Canvas.h"
 
 #include "Graphics/Renderer/Renderer.h"
 
 namespace Hazel {
-	const Texture& Layer::GetTexture() const
+	const Texture& Canvas::GetTexture() const
 	{ 
-		HZ_ASSERT(m_Framebuffer, "Layer::GetTexture: There is no framebuffer initialized in this layer!");
+		HZ_ASSERT(m_Framebuffer, "Canvas::GetTexture: There is no framebuffer initialized in this Canvas!");
 		return m_Framebuffer->GetTexture(); 
 	}
-	void Layer::Bind()
+	void Canvas::Bind()
     {
 		if (m_Framebuffer) {
 			m_Framebuffer->Bind();

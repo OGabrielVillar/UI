@@ -69,6 +69,11 @@ namespace Hazel {
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_DepthBufferRendererID);
 	}
 
+	void OpenGLFramebuffer::Resize(const vec2int& vector)
+	{
+		Resize(vector.x, vector.y);
+	}
+
 	void OpenGLFramebuffer::Resize(uint32_t width, uint32_t height)
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);

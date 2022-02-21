@@ -13,29 +13,36 @@
 
 */
 
-#include "Core/Geometry/Rect.h"
-
-//using uint8_t = unsigned char;
-
 namespace Hazel {
+
+	// --------------
+	// --- Anchor ---
+	// --------------
 
 	class Anchor 
 	{
 	public:
-		enum X : uint8_t 
-		{
-			Left = 0b00000100,
-			Center = 0b00001000,
-			Right = 0b00001100
+		struct X {
+			X() = delete;
+			enum : uint8_t 
+			{
+				Left = 0b00000100,
+				Center = 0b00001000,
+				Right = 0b00001100
+			};
 		};
-		enum Y : uint8_t 
-		{
-			Top = 0b00000001,
-			Center = 0b00000010,
-			Bottom = 0b00000011
+		struct Y {
+			Y() = delete;
+			enum : uint8_t 
+			{
+				Top = 0b00000001,
+				Center = 0b00000010,
+				Bottom = 0b00000011
+			};
 		};
 		enum class XY : uint8_t 
 		{
+			Inherit      = 0,
 			LeftTop      = X::Left   | Y::Top,
 			LeftCenter   = X::Left   | Y::Center,
 			LeftBottom   = X::Left   | Y::Bottom,
@@ -49,18 +56,26 @@ namespace Hazel {
 		using enum XY;
 
 	public:
-		constexpr Anchor(XY anchor = LeftTop, XY to = LeftTop)
-			: m_Anchors((uint8_t)anchor | ((uint8_t)to << 4))
+		constexpr Anchor(XY from = LeftTop, XY to = LeftTop)
+			: m_Anchors((uint8_t)from | ((uint8_t)to << 4))
 		{}
-
-		template<typename TYPE> 
-		Geometry::Template::AABBRect<TYPE>& Transform(Geometry::Template::AABBRect<TYPE>& rect)
-		{
-			
-		}
 
 	private:
 		uint8_t m_Anchors;
+	};
+
+	// --------------
+	// --- Layout ---
+	// --------------
+
+	class Layout {
+		Layout(const vec2& position, const vec2& size)
+		  : m_Rect(Rect::XYWH(position, size))
+		{}
+
+	private:
+		Rect m_Rect;
+		Anchor m_Anchor;
 	};
 
 }
