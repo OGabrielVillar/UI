@@ -69,13 +69,22 @@ namespace Hazel {
 	// --------------
 
 	class Layout {
+	public:
 		Layout(const vec2& position, const vec2& size)
 		  : m_Rect(Rect::XYWH(position, size))
 		{}
 
+		const Rect& GetRect() const { return m_Rect; }
+
 	private:
 		Rect m_Rect;
 		Anchor m_Anchor;
+	};
+
+	struct LayoutComponent : public Layout {
+		LayoutComponent(const vec2& position, const vec2& size)
+			: Layout(position, size)
+		{}
 	};
 
 }

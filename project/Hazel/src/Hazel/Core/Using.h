@@ -4,6 +4,13 @@ namespace Hazel {
 	
 	// [Definitions]
 	
+	//Functional
+		template<typename Return, typename ...Args>
+		using Function = Return(*)(Args...);
+
+		template<typename T, typename Return, typename ...Args>
+		using FunctionOf = Return(T::*)(Args...);
+
 	// Data
 		template <unsigned int size, typename type>
 		using Buffer = Data::Buffer<size,type>;
@@ -11,6 +18,7 @@ namespace Hazel {
 	//Containers
 		template <typename T>
 		using Stack = Containers::Stack<T>;
+
 	// Text
 		using string = std::string;
 

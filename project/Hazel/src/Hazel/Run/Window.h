@@ -50,7 +50,7 @@ namespace Hazel {
 		void SetColor(const vec4& color) { m_Context->SetColor(color); }
 		void SetTitle(const std::string& title);
 
-		const Ref<Canvas>& GetCanvas() { return m_Canvas; }
+		Ref<Canvas> GetCanvas() { return Ref<Canvas>(m_Canvas); }
 		glm::vec<2,int> GetResolution() const { 
 			return m_Canvas->GetSize(); 
 		}

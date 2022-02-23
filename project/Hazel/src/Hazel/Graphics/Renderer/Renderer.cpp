@@ -4,6 +4,8 @@
 #include "RenderCommand.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 
+#include "UI/Layout.h"
+
 namespace Hazel 
 {
 
@@ -117,6 +119,18 @@ namespace Hazel
 		std::dynamic_pointer_cast<OpenGLShader>(s_TextureShader)->UploadUniformFloat2("u_RectSize", rect.size());
 		s_SquareVA->Bind();
 		RenderCommand::DrawIndexed(s_SquareVA);
+	}
+
+	void Renderer::DrawUI(UILayer& uiLayer)
+	{
+		auto& registry = uiLayer.GetRegistry();
+		for ( const auto& ent : uiLayer.GetTree() )
+		{
+			if (registry.any_of<LayoutComponent>(ent)) {
+				LayoutComponent& layout = registry.get<LayoutComponent>(ent);
+				DrawRect(layout.GetRect(), {1.f,0.8f,0.85f,1.f});
+			}
+		}
 	}
 
 	/*void DrawString(const std::string& string, const Reference<Font>& font, const glm::mat4& transform, float maxWidth, const glm::vec4& color, float lineHeightOffset, float kerningOffset)

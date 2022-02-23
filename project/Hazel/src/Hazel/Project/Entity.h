@@ -59,6 +59,17 @@ namespace Hazel {
 			return nullptr;
 		}
 
+		template<typename COMPONENT>
+		inline COMPONENT* GetComponent()
+		{
+			COMPONENT* result = nullptr;
+			if ( m_Registry.any_of<COMPONENT>(m_ID) )
+				result = &m_Registry.get<COMPONENT>(m_ID);
+			return result;
+		}
+
+		inline entt::entity Raw() const { return m_ID; }
+
 	protected:
 		entt::entity m_ID;
 		entt::registry& m_Registry;

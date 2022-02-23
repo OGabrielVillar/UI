@@ -1,5 +1,4 @@
 #include "pch.h"
-
 #include "Log.h"
 
 #ifdef _CONSOLEAPP

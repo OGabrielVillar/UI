@@ -41,12 +41,19 @@
 
 #undef CreateWindow
 
-#include <Hazel/Core/Base.h>
-#include <Hazel/Core/Log.h>
+#include "Core/Base.h"
+
+#include "Core/Time/Timer.h"
 
 #include "Core/Flags.h"
 
+#include "Core/Debug/Profiler.h"
+#include "Core/Debug/Log.h"
+#include "Core/Debug/Dummy.h"
+
 #include "Core/Containers/Stack.h"
+#include "Core/Containers/SliderEnumeration.h"
+#include "Core/Containers/Tree.h"
 
 #include "Core/Math/MathCommon.h"
 #include "Core/Math/Random.h"
@@ -58,12 +65,7 @@
 #include "Core/Geometry/Circle.h"
 #include "Core/Geometry/Transformation.h"
 
-#include "Core/Debug/Dummy.h"
-
 #include "Core/Data/Buffer.h"
-
-#include "Core/Time/Timer.h"
-#include "Core/Time/TimeLiterals.h"
 
 #include "Core/Using.h"
 

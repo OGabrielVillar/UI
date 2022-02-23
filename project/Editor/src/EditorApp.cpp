@@ -31,6 +31,7 @@ void EditorApp::OnUpdate()
 void EditorApp::InitShit()
 {
 	using namespace Hazel;
+	PROFILE("InitShit");
 
 	// --- Aspect Ratio
 	vec2 resolution = (vec2)m_Window.get()->GetResolution();
@@ -50,84 +51,121 @@ void EditorApp::InitShit()
 	auto commandCardEntity = m_Project.CreateEntity("Command Card");
 	auto commandCard = commandCardEntity.AddComponent<CommandCardComponent>();
 
+	// UI
+	{
+		PROFILE("Init UI");
+
+		auto uiLayerEntity = m_Project.CreateUILayer(m_Window->GetCanvas());
+
+		auto& ui = *uiLayerEntity.GetComponent<UILayerComponent>();
+
+		ui.NewFrame({100.f,100.f},{200.f,150.f});
+		{
+			ui.NewFrame({300.f,300.f},{200.f,150.f});
+			{
+				ui.NewFrame({600.f,100.f},{200.f,150.f});
+				ui.Close();
+			}
+			ui.Close();
+
+			ui.NewFrame({100.f,500.f},{200.f,150.f});
+			ui.Close();
+		} 
+		ui.Close();
+
+	}
+
 	// Commands:
 	{
+		{
+			PROFILE("Init Commands");
 		
-		auto cmd = commandCard->AddCommand();
-		cmd->SetFunction([this]() 
-		{
-			m_Texture->SetInterpolation(m_Interpolation[m_InterpolationIndex]);
-			m_InterpolationIndex++;
-			m_InterpolationIndex %= 2;
-			return true;
-		});
-		cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::F9, Keyboard::Action::Release));
+			auto cmd = commandCard->AddCommand();
+			cmd->SetFunction([this]() 
+			{
+				m_Texture->SetInterpolation(m_Interpolation[m_InterpolationIndex]);
+				m_InterpolationIndex++;
+				m_InterpolationIndex %= 2;
+				return true;
+			});
+			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::F9, Keyboard::Action::Release));
+		
+			cmd = commandCard->AddCommand();
+			cmd->SetFunction([this]() 
+			{
+				PRINT_PROFILE();
+				return false;
+			});
+			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::F8, Keyboard::Action::Release));
 		
 		
-		cmd = commandCard->AddCommand();
-		cmd->SetFunction<EventCursorPosition>([this](const EventCursorPosition* event) 
-		{
-			m_TexturePosition = event->position;
-			return true;
+			cmd = commandCard->AddCommand();
+			cmd->SetFunction<EventCursorPosition>([this](const EventCursorPosition* event) 
+			{
+				m_TexturePosition = event->position;
+				return true;
+			});
+			cmd->AddTrigger(EventCursorPosition());
+
+
+			cmd = commandCard->AddCommand();
+			cmd->SetFunction<EventMouseScroll>([this](const EventMouseScroll* event) 
+			{
+				m_ViewportCamera->GetTransform().Scale(1.f - (0.1f * event->offset.y));
+				return true;
+			});
+			cmd->AddTrigger(EventMouseScroll());
+
+
+			cmd = commandCard->AddCommand();
+			cmd->SetFunction<EventWindowSize>([this](const EventWindowSize* event) 
+			{
+				vec2 resolution = (vec2)event->size;
+				vec2 aspectRatio (resolution / resolution.y);
+				m_Camera->SetAspectRatio(aspectRatio);
+				return true;
+			});
+			cmd->AddTrigger(EventWindowSize());
+		}//*/
+
+		// --- Texture
+
+		m_Texture = Texture::Create("assets/textures/starcraft.jpg");
+		m_Texture2 = Texture::Create("assets/textures/s2.png");
+
+		m_TextureVA = VertexArray::Create();
+
+		float textureVertices[] {
+			-1.7f, -1.0f, 0.f, 0.f, 0.f,
+			 1.7f, -1.0f, 0.f, 1.f, 0.f,
+			 1.7f,  1.0f, 0.f, 1.f, 1.f,
+			-1.7f,  1.0f, 0.f, 0.f, 1.f,
+		};
+		Reference<BufferLayout> textureBufferLayout(new BufferLayout {
+			{BufferLayoutDataType::Float3, "a_Position"},
+			{BufferLayoutDataType::Float2, "a_TexCoord"},
 		});
-		cmd->AddTrigger(EventCursorPosition());
 
+		Reference<VertexBuffer> textureVB = VertexBuffer::Create(textureVertices,sizeof(textureVertices),textureBufferLayout);
 
-		cmd = commandCard->AddCommand();
-		cmd->SetFunction<EventMouseScroll>([this](const EventMouseScroll* event) 
-		{
-			m_ViewportCamera->GetTransform().Scale(1.f - (0.1f * event->offset.y));
-			return true;
-		});
-		cmd->AddTrigger(EventMouseScroll());
+		m_TextureVA->AddVertexBuffer(textureVB);
 
+		uint32_t textureIndices[] =  { 0, 1, 2, 2, 3, 0 };
+		Reference<IndexBuffer> textureIB = IndexBuffer::Create(textureIndices, sizeof(textureIndices) / sizeof(uint32_t));
+		m_TextureVA->SetIndexBuffer(textureIB);
 
-		cmd = commandCard->AddCommand();
-		cmd->SetFunction<EventWindowSize>([this](const EventWindowSize* event) 
-		{
-			vec2 resolution = (vec2)event->size;
-			vec2 aspectRatio (resolution / resolution.y);
-			m_Camera->SetAspectRatio(aspectRatio);
-			return true;
-		});
-		cmd->AddTrigger(EventWindowSize());
-	}//*/
-
-	// --- Texture
-
-	m_Texture = Texture::Create("assets/textures/starcraft.jpg");
-	m_Texture2 = Texture::Create("assets/textures/s2.png");
-
-	m_TextureVA = VertexArray::Create();
-
-	float textureVertices[] {
-		-1.7f, -1.0f, 0.f, 0.f, 0.f,
-		 1.7f, -1.0f, 0.f, 1.f, 0.f,
-		 1.7f,  1.0f, 0.f, 1.f, 1.f,
-		-1.7f,  1.0f, 0.f, 0.f, 1.f,
-	};
-	Reference<BufferLayout> textureBufferLayout(new BufferLayout {
-		{BufferLayoutDataType::Float3, "a_Position"},
-		{BufferLayoutDataType::Float2, "a_TexCoord"},
-	});
-
-	Reference<VertexBuffer> textureVB = VertexBuffer::Create(textureVertices,sizeof(textureVertices),textureBufferLayout);
-
-	m_TextureVA->AddVertexBuffer(textureVB);
-
-	uint32_t textureIndices[] =  { 0, 1, 2, 2, 3, 0 };
-	Reference<IndexBuffer> textureIB = IndexBuffer::Create(textureIndices, sizeof(textureIndices) / sizeof(uint32_t));
-	m_TextureVA->SetIndexBuffer(textureIB);
-
-	m_TextureShader = Shader::Create("assets/shaders/Texture3D.glsl");
-	m_TextureShader->Bind();
-	std::dynamic_pointer_cast<OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
-
+		m_TextureShader = Shader::Create("assets/shaders/Texture3D.glsl");
+		m_TextureShader->Bind();
+		std::dynamic_pointer_cast<OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
+	}
+	PRINT_PROFILE();
 }
 
 void EditorApp::TestShit()
 {
 	using namespace Hazel;
+	CLEAR_PROFILE();
+	PROFILE_FPS("Frame Time");
 
 	Renderer::Clear();
 
@@ -146,6 +184,8 @@ void EditorApp::TestShit()
 	//Renderer::DrawTexture(Rect::XYWH(m_TexturePosition, m_TextureSize), *m_Texture);
 	
 	Renderer::DrawTexture(m_Rect, m_ViewportScene.GetCanvas().GetTexture());
+
+	m_Project.Render();
 
 	Renderer::EndScene();
 	// ---------------------

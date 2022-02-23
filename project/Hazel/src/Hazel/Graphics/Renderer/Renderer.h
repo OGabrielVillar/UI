@@ -5,6 +5,8 @@
 #include "Project/Scene.h"
 #include "Graphics/Texture.h"
 
+#include "UI/UILayer.h"
+
 //#include <glm/gtc/matrix_transform.hpp>
 
 namespace Hazel {
@@ -32,6 +34,7 @@ namespace Hazel {
 		static void DrawLine(const vec2& rect, const vec4& color);
 		static void DrawCircle(const Circle& rect, const vec4& color);
 		static void DrawTexture(const Rect& rect, const Texture& texture);
+		static void DrawUI(UILayer& uiLayer);
 		/*static void DrawString(
 			const std::string& string, 
 			const Reference<Font>& font, 
