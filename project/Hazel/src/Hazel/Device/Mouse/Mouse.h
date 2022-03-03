@@ -3,7 +3,6 @@
 #include "MouseCodes.h"
 #include "Device/Keyboard/Keyboard.h"
 
-#include "Core/Flags.h"
 #include "Input/Event.h"
 
 namespace Hazel 

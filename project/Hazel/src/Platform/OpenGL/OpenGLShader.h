@@ -3,7 +3,7 @@
 #include <string>
 #include <glm/glm.hpp>
 
-#include "Graphics/Renderer/Shader.h"
+#include "Graphics/Shader.h"
 
 namespace Hazel 
 {

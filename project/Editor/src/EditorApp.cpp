@@ -2,7 +2,6 @@
 
 #include "EditorApp.h"
 #include "Platform/OpenGL/OpenGLShader.h"
-#include "Project/Component/CommandCardComponent.h"
 
 EditorApp::EditorApp(const std::string& name, Hazel::Window::Flags flags) 
 	: Application(name, flags)
@@ -39,39 +38,63 @@ void EditorApp::InitShit()
 
 	vec2 viewportResolution = m_Rect.size();
 	vec2 viewportAspectRatio (viewportResolution / viewportResolution.y);
-	m_Viewport.SetSize((vec2int)m_Rect.size());
+	m_ViewportCanvas->SetSize((vec2int)m_Rect.size());
 
-	// --- Project Initialization
+	// --- Scene Initialization
 	m_Camera = m_Project.CreateCamera(aspectRatio);
-	m_Scene.SetCamera(m_Camera);
+	m_Scene = CreateReference<Entity>(m_Project.CreateScene(m_Window->GetCanvas()));
+	m_Scene->GetComponent<SceneComponent>()->SetCamera(m_Camera);
 
 	m_ViewportCamera = m_Project.CreateCamera({viewportAspectRatio});
-	m_ViewportScene.SetCamera(m_ViewportCamera);
+	m_ViewportScene = CreateReference<Entity>(m_Project.CreateScene(m_ViewportCanvas));
+	m_ViewportScene->GetComponent<SceneComponent>()->SetCamera(m_ViewportCamera);
 
 	auto commandCardEntity = m_Project.CreateEntity("Command Card");
 	auto commandCard = commandCardEntity.AddComponent<CommandCardComponent>();
+	
+	m_UILayer.GetComponent<LayoutComponent>()->SetSize((vec2)m_Window->GetResolution());
 
 	// UI
 	{
 		PROFILE("Init UI");
 
-		auto uiLayerEntity = m_Project.CreateUILayer(m_Window->GetCanvas());
+		//auto uiLayerEntity = m_Project.CreateUILayer();
 
-		auto& ui = *uiLayerEntity.GetComponent<UILayerComponent>();
+		auto& ui = *m_UILayer.GetComponent<UILayerComponent>();
 
-		ui.NewFrame({100.f,100.f},{200.f,150.f});
-		{
-			ui.NewFrame({300.f,300.f},{200.f,150.f});
-			{
-				ui.NewFrame({600.f,100.f},{200.f,150.f});
-				ui.Close();
-			}
-			ui.Close();
+		{ ui.NewFrame("TitleBar");
+			ui.SetSize({1920.f,30.f});
+			ui.SetAnchor({Anchor::LeftTop, Anchor::LeftTop});
+			ui.SetSnap(Snap::Right);
+			ui.GetMaterial().SetColor(to_rgb({36,36,38,255}));
 
-			ui.NewFrame({100.f,500.f},{200.f,150.f});
-			ui.Close();
-		} 
-		ui.Close();
+			{ ui.NewFrame("CloseButton");
+				ui.SetSize({50.f,50.f});
+				ui.SetAnchor({Anchor::RightCenter, Anchor::RightCenter});
+				ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
+
+				{ ui.NewFrame("MinimizeButton");
+					ui.SetSize({50.f,50.f});
+					ui.SetAnchor({Anchor::RightCenter, Anchor::LeftCenter});
+					ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
+				ui.Close(); } 
+
+			ui.Close(); } 
+
+			{ ui.NewFrame("TitleLabel"); 
+				ui.SetSize({50.f,50.f});
+				ui.SetAnchor({Anchor::CenterTop, Anchor::CenterTop});
+				ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
+
+			ui.Close(); }
+
+		ui.Close(); } 
+
+		{ m_Viewport = CreateReference<Entity>(ui.NewViewport("Viewport"));
+			ui.SetSize({ 370.f,170.f });
+			ui.SetAnchor({ Anchor::RightBottom, Anchor::RightBottom });
+			m_Viewport->GetComponent<ViewportComponent>()->SetScene(*m_ViewportScene);
+		ui.Close(); }
 
 	}
 
@@ -123,6 +146,7 @@ void EditorApp::InitShit()
 				vec2 resolution = (vec2)event->size;
 				vec2 aspectRatio (resolution / resolution.y);
 				m_Camera->SetAspectRatio(aspectRatio);
+				m_UILayer.GetComponent<LayoutComponent>()->SetSize((vec2)event->size);
 				return true;
 			});
 			cmd->AddTrigger(EventWindowSize());
@@ -169,21 +193,14 @@ void EditorApp::TestShit()
 
 	Renderer::Clear();
 
-	Renderer::BeginScene(m_ViewportScene);
+	Renderer::BeginScene(*m_ViewportScene->GetComponent<SceneComponent>());
 		
 	m_Texture->Bind();
 	Renderer::Submit(m_TextureShader, m_TextureVA);
 
 	Renderer::EndScene();
 	// ---------------------
-	Renderer::BeginScene(m_Scene);
-
-	//Renderer::DrawRect(m_Rect, m_RectColor);
-	
-	//Renderer::DrawTexture(Rect::XYWH(m_TexturePosition, m_TextureSize), m_ViewportScene.GetCanvas().GetTexture());
-	//Renderer::DrawTexture(Rect::XYWH(m_TexturePosition, m_TextureSize), *m_Texture);
-	
-	Renderer::DrawTexture(m_Rect, m_ViewportScene.GetCanvas().GetTexture());
+	Renderer::BeginScene(*m_Scene->GetComponent<SceneComponent>());
 
 	m_Project.Render();
 

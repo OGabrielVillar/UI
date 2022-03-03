@@ -2,7 +2,6 @@
 
 #include "KeyboardCodes.h"
 
-#include "Core/Flags.h"
 #include "Input/Event.h"
 
 namespace Hazel 

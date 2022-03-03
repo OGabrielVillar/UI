@@ -45,27 +45,24 @@
 
 #include "Core/Time/Timer.h"
 
-#include "Core/Flags.h"
+#include "Core/Data/Flags.h"
+#include "Core/Data/Stack.h"
+#include "Core/Data/SliderEnumeration.h"
+#include "Core/Data/Tree.h"
+#include "Core/Data/UUID.h"
 
 #include "Core/Debug/Profiler.h"
 #include "Core/Debug/Log.h"
 #include "Core/Debug/Dummy.h"
 
-#include "Core/Containers/Stack.h"
-#include "Core/Containers/SliderEnumeration.h"
-#include "Core/Containers/Tree.h"
-
 #include "Core/Math/MathCommon.h"
 #include "Core/Math/Random.h"
-#include "Core/UUID.h"
 
 #include "Core/Geometry/Rect.h"
 #include "Core/Geometry/Polygon.h"
 #include "Core/Geometry/Angle.h"
 #include "Core/Geometry/Circle.h"
 #include "Core/Geometry/Transformation.h"
-
-#include "Core/Data/Buffer.h"
 
 #include "Core/Using.h"
 

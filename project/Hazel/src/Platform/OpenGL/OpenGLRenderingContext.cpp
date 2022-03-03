@@ -4,7 +4,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "Graphics/Renderer/BufferLayout.h"
+#include "Graphics/BufferLayout.h"
 
 namespace Hazel {
 

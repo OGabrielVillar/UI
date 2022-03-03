@@ -8,8 +8,8 @@ Hazel::Application* Hazel::CreateApplication()
 
 	//return new EditorApp("Hazel Editor", Hazel::Window::Flag::Transparent | Hazel::Window::Flag::Focused);
 	return new EditorApp("Hazel Editor", 
-		Hazel::Window::Flag::Focused
-		//| Window::Flag::Decorated
+		Hazel::Window::Flag::Focused 
+		//| Hazel::Window::Flag::Decorated
 	);
 
 }

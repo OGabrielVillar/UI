@@ -11,13 +11,16 @@ namespace Hazel {
 		template<typename T, typename Return, typename ...Args>
 		using FunctionOf = Return(T::*)(Args...);
 
-	// Data
-		template <unsigned int size, typename type>
-		using Buffer = Data::Buffer<size,type>;
-		
-	//Containers
+	//Data
 		template <typename T>
-		using Stack = Containers::Stack<T>;
+		using Stack = Data::Stack<T>;
+
+		template <typename T>
+		using Tree = Data::Tree<T>;
+
+		using Data::SliderEnumeration;
+		using Data::Flags;
+		using Data::UUID;
 
 	// Text
 		using string = std::string;
@@ -46,10 +49,16 @@ namespace Hazel {
 	
 	 
 	// Visuals
-		// using rgb = Math::vec3;
-		// using rgba = Math::vec4;
-		// using u8rgb = Math::u8vec3;
-		// using u8rgba = Math::u8vec4;
+		using rgb = vec3;
+		using rgba = vec4;
+
+		using rgb_u8 = glm::vec<3, uint8_t>;
+		using rgba_u8 = glm::vec<4, uint8_t>;
+
+		inline static vec4 to_rgb(const rgba_u8& color)
+		{
+			return (vec4)color / vec4(255.f,255.f,255.f,255.f);
+		}
 	
 	//Time
 		using namespace Time::Literals;

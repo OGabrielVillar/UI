@@ -6,7 +6,7 @@
 
 #include "Platform/OpenGL/OpenGLRenderingContext.h"
 
-#include "Graphics/Renderer/Renderer.h"
+#include "Graphics/Renderer.h"
 #include "Device/Keyboard/Keyboard.h"
 #include "Device/Mouse/Mouse.h"
 #include "Input/Cursor.h"
@@ -52,7 +52,7 @@ namespace Hazel {
 			glfwWindowHint(GLFW_VISIBLE, false);
 
 		// Create Window
-		m_Window = glfwCreateWindow(m_Canvas->GetWidth(), m_Canvas->GetHeight(), m_Name.c_str(), NULL, NULL);
+		m_Window = glfwCreateWindow((int)m_Canvas->GetWidth(), (int)m_Canvas->GetHeight(), m_Name.c_str(), NULL, NULL);
 
 		// Create Context
 		m_Context = CreateReference<OpenGLRenderingContext>(m_Window);
@@ -238,8 +238,8 @@ namespace Hazel {
 	{
 		// Set Up Position
 		glfwSetWindowPos(m_Window,
-			(m_MonitorResolution.x / 2) - (m_Canvas->GetWidth() / 2),
-			(m_MonitorResolution.y / 2) - (m_Canvas->GetHeight() / 2));
+			(m_MonitorResolution.x / 2) - ((int)m_Canvas->GetWidth() / 2),
+			(m_MonitorResolution.y / 2) - ((int)m_Canvas->GetHeight() / 2));
 	}
 
 	void Window::SetTitle(const std::string& title)

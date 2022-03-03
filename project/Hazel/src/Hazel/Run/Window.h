@@ -5,9 +5,9 @@
 
 #include "Core/Geometry/Rect.h"
 
-#include "Graphics/Renderer/RenderingContext.h"
+#include "Graphics/RenderingContext.h"
 #include "Input/Event.h"
-#include "Project/Canvas.h"
+#include "Structure/Canvas.h"
 
 namespace Hazel {
 
@@ -61,6 +61,7 @@ namespace Hazel {
 		Flags m_Flags;
 		vec2int m_TopLeft;
 		vec2int m_MonitorResolution;
+
 		Ref<Canvas> m_Canvas = CreateReference<Canvas>(intRect::WH(720, 720));
 		EventCallbackFn m_OnEventCallbackFn;
 	};

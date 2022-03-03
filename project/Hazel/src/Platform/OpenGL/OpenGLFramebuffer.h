@@ -1,7 +1,7 @@
 #pragma once
 
 #include "OpenGLTexture.h"
-#include "Graphics/Renderer/Framebuffer.h"
+#include "Graphics/Framebuffer.h"
 
 namespace Hazel {
 	

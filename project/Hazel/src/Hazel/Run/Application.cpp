@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Application.h"
 
-#include "Graphics/Renderer/Renderer.h"
+#include "Graphics/Renderer.h"
 
 namespace Hazel 
 {

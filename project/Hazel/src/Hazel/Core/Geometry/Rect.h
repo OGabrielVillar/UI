@@ -13,11 +13,18 @@ namespace Hazel::Geometry {
 			using vec4Type = glm::vec<4,T>;
 			constexpr AABBRect() = default;
 			constexpr AABBRect(const AABBRect& other) = default;
+			template <typename D>
+			constexpr AABBRect(const AABBRect<D>& other)
+				: a_x((T)other.a_x), a_y((T)other.a_y), b_x((T)other.b_x), b_y((T)other.b_y)
+			{}
 			constexpr AABBRect(const vec4Type& vector)
 				: a_x(vector.x), a_y(vector.y), b_x(vector.z), b_y(vector.w)
 			{}
 			constexpr AABBRect(T a_x, T a_y, T b_x, T b_y)
 				: a_x(a_x), a_y(a_y), b_x(b_x), b_y(b_y)
+			{}
+			constexpr AABBRect(T b_x, T b_y)
+				: a_x((T)0), a_y((T)0), b_x(b_x), b_y(b_y)
 			{}
 			union {
 				T a_x = 0.f;
@@ -37,6 +44,15 @@ namespace Hazel::Geometry {
 				T b_y = 0.f;
 				T bottom;
 			};
+			const vec2Type& center() const { 
+				return (b() + a()) / T(2);
+			}
+			float xCenter() const { 
+				return (b_x + a_x) / T(2);
+			}
+			float yCenter() const { 
+				return (b_y + a_y) / T(2);
+			}
 			const vec2Type& a() const { 
 				return *((const vec2Type*)&a_x);
 			}

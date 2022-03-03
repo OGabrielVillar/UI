@@ -1,33 +1,39 @@
 #pragma once
 
-#include "Project/Scene.h"
-#include "Project/Entity.h"
+#include "Structure/Entity.h"
 
 namespace Hazel {
 
 	class UILayer {
+
 	public:
-		UILayer(entt::registry& registry, const Ref<Canvas>& canvas)
-			: m_Canvas(canvas),
-			  m_Tree(entt::null),
-			  m_Registry(registry)
+		UILayer(const Ref<entt::registry>& registry, entt::entity id)
+		  : m_ID(id),
+			m_Registry(registry)
 		{}
 
-		Entity NewFrame(const vec2& position, const vec2& size);
+		Entity NewFrame(const std::string& name);
+		Entity NewViewport(const std::string& name);
+
+		void SetSize(const vec2& size);
+		void SetPosition(const vec2& position);
+		void SetAnchor(Anchor anchor);
+		void SetSnap(Snap snap);
+		MaterialComponent& GetMaterial();
 
 		void Close();
 
-		inline Tree<entt::entity>& GetTree() { return m_Tree; }
-		inline entt::registry& GetRegistry() { return m_Registry; }
-		inline Ref<Canvas> GetCanvas() const { return Ref<Canvas>(m_Canvas); }
+		inline Ref<entt::registry>& GetRegistry() { return m_Registry; }
+		inline HierarchyComponent& GetHierarchy() { return m_Registry->get<HierarchyComponent>(m_ID); }
+
+	private:
+		Entity NewElement(const std::string& name);
 
 	protected:
-		Ref<Canvas> m_Canvas = nullptr;
+		entt::entity m_ID = entt::null;
+		Ref<entt::registry> m_Registry;
 
-		Tree<entt::entity> m_Tree;
-		entt::registry& m_Registry;
 		entt::entity m_WorkingEntity = entt::null;
-
 		entt::entity m_History[90] {entt::null};
 		int m_HistoryIndex = 0;
 	};
@@ -35,12 +41,12 @@ namespace Hazel {
 
 
 	struct UILayerComponent : public UILayer {
-		UILayerComponent(entt::registry& registry, const Ref<Canvas>& canvas)
-			: UILayer(registry, canvas)
+		UILayerComponent(Ref<entt::registry>& registry, entt::entity id)
+			: UILayer(registry, id)
 		{}
 
 		const UILayerComponent(const UILayerComponent& other) 
-			: UILayer(other.m_Registry, other.GetCanvas())
+			: UILayer(other.m_Registry, other.m_ID)
 		{}
 
 		UILayerComponent& operator=(const UILayerComponent& other)

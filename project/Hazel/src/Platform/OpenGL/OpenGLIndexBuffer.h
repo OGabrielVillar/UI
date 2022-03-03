@@ -1,5 +1,5 @@
 #pragma once
-#include "Graphics/Renderer/IndexBuffer.h"
+#include "Graphics/IndexBuffer.h"
 
 namespace Hazel {
 	

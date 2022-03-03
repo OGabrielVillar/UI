@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Texture.h"
 
-#include "Graphics/Renderer/RendererAPI.h"
+#include "Graphics/RendererAPI.h"
 #include "Platform/OpenGL/OpenGLTexture.h"
 
 namespace Hazel {
