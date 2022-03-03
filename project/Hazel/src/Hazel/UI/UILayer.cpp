@@ -67,9 +67,9 @@ namespace Hazel {
 		m_Registry->get<LayoutComponent>(m_History[m_HistoryIndex]).SetAnchor(anchor);
 	}
 
-	void UILayer::SetSnap(Snap snap)
+	void UILayer::SetEdgeSnap(EdgeSnap snap)
 	{
-		m_Registry->get<LayoutComponent>(m_History[m_HistoryIndex]).SetSnap(snap);
+		m_Registry->get<LayoutComponent>(m_History[m_HistoryIndex]).SetEdgeSnap(snap);
 	}
 
 	MaterialComponent& UILayer::GetMaterial()
@@ -83,6 +83,11 @@ namespace Hazel {
 			m_HistoryIndex--;
 			m_WorkingEntity = m_History[m_HistoryIndex];
 		}
+	}
+
+	HierarchyComponent& UILayer::GetHierarchy()
+	{ 
+		return m_Registry->get<HierarchyComponent>(m_ID); 
 	}
 
 }

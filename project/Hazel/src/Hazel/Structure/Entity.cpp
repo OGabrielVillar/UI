@@ -1,16 +1,9 @@
 #include "pch.h"
-#include "Components.h"
-
 #include "Entity.h"
 
-namespace Hazel {
+#include "Components.h"
 
-	CameraEntity::CameraEntity(Ref<entt::registry>& registry, const vec2& aspectRatio)
-	  : Entity(registry, "Camera")
-	{
-		auto transform = AddComponent<TransformComponent>();
-		AddComponent<CameraComponent>(aspectRatio, transform->GetMat4());
-	}
+namespace Hazel {
 
 	// --------------
 	// --- Entity ---
@@ -20,7 +13,12 @@ namespace Hazel {
 	{}
 
 	Entity::Entity(Ref<entt::registry>& registry)
-		: m_ID(registry->create()),
+	  : m_ID(registry->create()),
+		m_Registry(registry)
+	{}
+
+	Entity::Entity(Ref<entt::registry>&registry, entt::entity id)
+	  : m_ID(id),
 		m_Registry(registry)
 	{}
 
@@ -41,6 +39,37 @@ namespace Hazel {
 		m_ID = other.m_ID;
 		m_Registry = other.m_Registry;
 		return *this;
+	}
+
+	// --------------------
+	// --- CameraEntity ---
+	// --------------------
+
+	CameraEntity::CameraEntity(Ref<entt::registry>& registry, const vec2& aspectRatio)
+	  : Entity(registry, "Camera")
+	{
+		auto transform = AddComponent<TransformComponent>();
+		AddComponent<CameraComponent>(aspectRatio, transform->GetMat4());
+	}
+
+	void CameraEntity::SetAspectRatio(const vec2& aspectRatio)
+	{ 
+		GetCamera().SetAspectRatio(aspectRatio); 
+	}
+
+	const mat4& CameraEntity::GetViewProjectionMatrix()
+	{ 
+		return GetCamera().GetViewProjectionMatrix(); 
+	}
+
+	TransformComponent& CameraEntity::GetTransform()
+	{
+		 return m_Registry->get<TransformComponent>(m_ID);
+	}
+
+	CameraComponent& CameraEntity::GetCamera()
+	{
+		 return m_Registry->get<CameraComponent>(m_ID);
 	}
 
 }

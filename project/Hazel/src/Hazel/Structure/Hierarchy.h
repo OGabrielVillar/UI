@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Entity.h"
+
 namespace Hazel {
 
 	class Hierarchy {
@@ -47,9 +49,23 @@ namespace Hazel {
 
 		bool MoveUnder(entt::entity move_entity, entt::entity under_entity);
 
-		void TopToBottom(const std::function<void(entt::entity)>& function);
+		void TopToBottom(const std::function<void(Entity)>& function);
 
-		void BottomToTop(const std::function<void(entt::entity)>& function);
+		//template<typename ... COMPONENT>
+		//void TopToBottomComponent(const std::function<void(COMPONENT&...)>& function)
+		//{
+		//	for ( auto iterator = m_Childs.rbegin(); iterator != m_Childs.rend(); iterator++)
+		//	{
+		//		auto child = *iterator;
+		//
+		//		if (m_Registry->all_of<HierarchyComponent, COMPONENT...>(child))
+		//			m_Registry->get<HierarchyComponent>(child).TopToBottomComponent<COMPONENT...>(function);
+		//	}
+		//	if (m_Registry->all_of<COMPONENT...>(m_ID))
+		//		function(m_Registry->get<COMPONENT...>(m_ID));
+		//}
+
+		void BottomToTop(const std::function<void(Entity)>& function);
 
 		template<typename COMPONENT>
 		COMPONENT* GetParent() const
@@ -81,21 +97,6 @@ namespace Hazel {
 		entt::entity m_ID = entt::null;
 		entt::entity m_Parent = entt::null;
 		std::vector<entt::entity> m_Childs;
-	};
-
-	struct HierarchyComponent : public Hierarchy {
-	 public:
-		HierarchyComponent(const Ref<entt::registry>& registry, entt::entity id, Hierarchy& parent)
-		  : Hierarchy(registry, id, parent)
-		{}
-		HierarchyComponent(const Ref<entt::registry>& registry, entt::entity id)
-		  : Hierarchy(registry, id)
-		{}
-		HierarchyComponent(const Ref<entt::registry>& registry)
-		  : Hierarchy(registry)
-		{}
-		HierarchyComponent& operator =(const HierarchyComponent&) 
-		{ return *this; }
 	};
 
 }

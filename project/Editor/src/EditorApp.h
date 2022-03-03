@@ -25,6 +25,7 @@ private:// Shit
 	Hazel::Ref<Hazel::CameraEntity> m_Camera;
 
 	Hazel::Entity m_UILayer = m_Project.CreateUILayer();
+	Hazel::Entity m_Movable;
 
 	Hazel::ShaderLibrary m_ShaderLibrary;
 	Hazel::Reference<Hazel::Shader> m_TextureShader;

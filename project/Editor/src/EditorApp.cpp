@@ -43,67 +43,89 @@ void EditorApp::InitShit()
 	// --- Scene Initialization
 	m_Camera = m_Project.CreateCamera(aspectRatio);
 	m_Scene = CreateReference<Entity>(m_Project.CreateScene(m_Window->GetCanvas()));
-	m_Scene->GetComponent<SceneComponent>()->SetCamera(m_Camera);
+	m_Scene->GetComponent<SceneComponent>().SetCamera(m_Camera);
 
 	m_ViewportCamera = m_Project.CreateCamera({viewportAspectRatio});
 	m_ViewportScene = CreateReference<Entity>(m_Project.CreateScene(m_ViewportCanvas));
-	m_ViewportScene->GetComponent<SceneComponent>()->SetCamera(m_ViewportCamera);
+	m_ViewportScene->GetComponent<SceneComponent>().SetCamera(m_ViewportCamera);
 
 	auto commandCardEntity = m_Project.CreateEntity("Command Card");
 	auto commandCard = commandCardEntity.AddComponent<CommandCardComponent>();
 	
-	m_UILayer.GetComponent<LayoutComponent>()->SetSize((vec2)m_Window->GetResolution());
+	m_UILayer.GetComponent<LayoutComponent>().SetSize((vec2)m_Window->GetResolution());
 
-	// UI
+	// ----------
+	// --- UI ---
+	// ----------
 	{
 		PROFILE("Init UI");
 
 		//auto uiLayerEntity = m_Project.CreateUILayer();
 
-		auto& ui = *m_UILayer.GetComponent<UILayerComponent>();
+		auto& ui = m_UILayer.GetComponent<UILayerComponent>();
 
-		{ ui.NewFrame("TitleBar");
+		ui.NewFrame("TitleBar"); {
 			ui.SetSize({1920.f,30.f});
 			ui.SetAnchor({Anchor::LeftTop, Anchor::LeftTop});
-			ui.SetSnap(Snap::Right);
+			ui.SetEdgeSnap(EdgeSnap::Right);
 			ui.GetMaterial().SetColor(to_rgb({36,36,38,255}));
 
-			{ ui.NewFrame("CloseButton");
+			ui.NewFrame("CloseButton"); { 
 				ui.SetSize({50.f,50.f});
 				ui.SetAnchor({Anchor::RightCenter, Anchor::RightCenter});
 				ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
 
-				{ ui.NewFrame("MinimizeButton");
+				ui.NewFrame("MinimizeButton"); { 
 					ui.SetSize({50.f,50.f});
 					ui.SetAnchor({Anchor::RightCenter, Anchor::LeftCenter});
 					ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
-				ui.Close(); } 
+				} ui.Close();
 
-			ui.Close(); } 
+			} ui.Close(); 
 
-			{ ui.NewFrame("TitleLabel"); 
+			m_Movable = ui.NewFrame("TitleLabel"); {
 				ui.SetSize({50.f,50.f});
 				ui.SetAnchor({Anchor::CenterTop, Anchor::CenterTop});
 				ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
 
-			ui.Close(); }
+			} ui.Close();
 
-		ui.Close(); } 
+		} ui.Close();
 
-		{ m_Viewport = CreateReference<Entity>(ui.NewViewport("Viewport"));
+		m_Viewport = CreateReference<Entity>(ui.NewViewport("Viewport")); { 
 			ui.SetSize({ 370.f,170.f });
 			ui.SetAnchor({ Anchor::RightBottom, Anchor::RightBottom });
-			m_Viewport->GetComponent<ViewportComponent>()->SetScene(*m_ViewportScene);
-		ui.Close(); }
+			m_Viewport->GetComponent<ViewportComponent>().SetScene(*m_ViewportScene);
+		} ui.Close();
 
 	}
 
-	// Commands:
+	// ----------------
+	// --- Commands ---
+	// ----------------
 	{
 		{
 			PROFILE("Init Commands");
 		
-			auto cmd = commandCard->AddCommand();
+			Ref<Command> cmd;
+
+			cmd = commandCard->AddCommand();
+			cmd->SetFunction([this]() 
+			{
+				m_Movable.GetComponent<LayoutComponent>().SetPosition({90.f,0.f});
+				return true;
+			});
+			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::Right, Keyboard::Action::Release));
+		
+			cmd = commandCard->AddCommand();
+			cmd->SetFunction([this]() 
+			{
+				m_Movable.GetComponent<LayoutComponent>().SetPosition({-90.f,0.f});
+				return true;
+			});
+			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::Left, Keyboard::Action::Release));
+		
+			cmd = commandCard->AddCommand();
 			cmd->SetFunction([this]() 
 			{
 				m_Texture->SetInterpolation(m_Interpolation[m_InterpolationIndex]);
@@ -146,7 +168,7 @@ void EditorApp::InitShit()
 				vec2 resolution = (vec2)event->size;
 				vec2 aspectRatio (resolution / resolution.y);
 				m_Camera->SetAspectRatio(aspectRatio);
-				m_UILayer.GetComponent<LayoutComponent>()->SetSize((vec2)event->size);
+				m_UILayer.GetComponent<LayoutComponent>().SetSize((vec2)event->size);
 				return true;
 			});
 			cmd->AddTrigger(EventWindowSize());
@@ -193,14 +215,14 @@ void EditorApp::TestShit()
 
 	Renderer::Clear();
 
-	Renderer::BeginScene(*m_ViewportScene->GetComponent<SceneComponent>());
+	Renderer::BeginScene(m_ViewportScene->GetComponent<SceneComponent>());
 		
 	m_Texture->Bind();
 	Renderer::Submit(m_TextureShader, m_TextureVA);
 
 	Renderer::EndScene();
 	// ---------------------
-	Renderer::BeginScene(*m_Scene->GetComponent<SceneComponent>());
+	Renderer::BeginScene(m_Scene->GetComponent<SceneComponent>());
 
 	m_Project.Render();
 

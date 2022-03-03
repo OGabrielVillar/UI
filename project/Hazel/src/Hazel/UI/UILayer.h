@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Structure/Entity.h"
+#include "Layout.h"
 
 namespace Hazel {
 
@@ -18,13 +19,13 @@ namespace Hazel {
 		void SetSize(const vec2& size);
 		void SetPosition(const vec2& position);
 		void SetAnchor(Anchor anchor);
-		void SetSnap(Snap snap);
+		void SetEdgeSnap(EdgeSnap edgeSnap);
 		MaterialComponent& GetMaterial();
 
 		void Close();
 
 		inline Ref<entt::registry>& GetRegistry() { return m_Registry; }
-		inline HierarchyComponent& GetHierarchy() { return m_Registry->get<HierarchyComponent>(m_ID); }
+		HierarchyComponent& GetHierarchy();
 
 	private:
 		Entity NewElement(const std::string& name);
@@ -39,20 +40,5 @@ namespace Hazel {
 	};
 
 
-
-	struct UILayerComponent : public UILayer {
-		UILayerComponent(Ref<entt::registry>& registry, entt::entity id)
-			: UILayer(registry, id)
-		{}
-
-		const UILayerComponent(const UILayerComponent& other) 
-			: UILayer(other.m_Registry, other.m_ID)
-		{}
-
-		UILayerComponent& operator=(const UILayerComponent& other)
-		{
-			return *this;
-		}
-	};
 
 }

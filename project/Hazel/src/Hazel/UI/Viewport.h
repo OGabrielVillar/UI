@@ -12,17 +12,10 @@ namespace Hazel {
 
 		void SetScene(Entity sceneEntity);
 
-		inline SceneComponent& GetScene() { return *m_SceneEntity.GetComponent<SceneComponent>(); }
+		inline SceneComponent& GetScene() { return m_SceneEntity.GetComponent<SceneComponent>(); }
 
 	protected:
 		Entity m_SceneEntity;
-	};
-
-	struct ViewportComponent : Viewport {
-	public:
-		ViewportComponent() {}
-
-		REQUIRES(LayoutComponent);
 	};
 
 }

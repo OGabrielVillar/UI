@@ -4,8 +4,8 @@
 #include "RenderCommand.h"
 #include "Platform/OpenGL/OpenGLShader.h"
 
-#include "UI/Layout.h"
-#include "UI/Viewport.h"
+#include "Structure/Components.h"
+#include "Structure/Entity.h"
 
 namespace Hazel 
 {
@@ -153,27 +153,23 @@ namespace Hazel
 
 	void Renderer::DrawUI(UILayer& uiLayer)
 	{
-		auto& registry = uiLayer.GetRegistry();
-
-		uiLayer.GetHierarchy().BottomToTop([&registry](entt::entity ent){
-
-			if (ent == entt::null) return;
-
-			if (registry->all_of<LayoutComponent, MaterialComponent>(ent)) {
-
-				LayoutComponent& layout = registry->get<LayoutComponent>(ent);
-
-				DrawRect(layout.GetRect(), registry->get<MaterialComponent>(ent).GetColor());
+		uiLayer.GetHierarchy().BottomToTop([](Entity ent) {
+		
+			if (ent.HaveComponent<LayoutComponent, MaterialComponent>()) {
+		
+				LayoutComponent& layout = ent.GetComponent<LayoutComponent>();
+		
+				DrawRect(layout.GetRect(), ent.GetComponent<MaterialComponent>().GetColor());
 			}
-
-			if (registry->all_of<LayoutComponent, ViewportComponent>(ent)) {
-
-				LayoutComponent& layout = registry->get<LayoutComponent>(ent);
-				ViewportComponent& viewport = registry->get<ViewportComponent>(ent);
-
+		
+			if (ent.HaveComponent<LayoutComponent, ViewportComponent>()) {
+		
+				LayoutComponent& layout = ent.GetComponent<LayoutComponent>();
+				ViewportComponent& viewport = ent.GetComponent<ViewportComponent>();
+		
 				Renderer::DrawTexture(layout.GetRect(), viewport.GetScene().GetCanvas().GetTexture());
 			}
-
+		
 		});
 	}
 

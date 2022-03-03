@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Hierarchy.h"
+#include "Structure/Entity.h"
 #include "Structure/Components.h"
 
 namespace Hazel {
@@ -185,7 +186,7 @@ namespace Hazel {
 		return false;
 	}
 
-	void Hierarchy::TopToBottom(const std::function<void(entt::entity)>& function)
+	void Hierarchy::TopToBottom(const std::function<void(Entity)>& function)
 	{
 		for ( auto iterator = m_Childs.rbegin(); iterator != m_Childs.rend(); iterator++)
 		{
@@ -194,12 +195,12 @@ namespace Hazel {
 			if (m_Registry->any_of<HierarchyComponent>(child))
 				m_Registry->get<HierarchyComponent>(child).TopToBottom(function);
 		}
-		function(m_ID);
+		function({m_Registry, m_ID});
 	}
 
-	void Hierarchy::BottomToTop(const std::function<void(entt::entity)>& function)
+	void Hierarchy::BottomToTop(const std::function<void(Entity)>& function)
 	{
-		function(m_ID);
+		function({m_Registry, m_ID});
 		for ( auto child : m_Childs )
 		{
 			if (m_Registry->any_of<HierarchyComponent>(child))

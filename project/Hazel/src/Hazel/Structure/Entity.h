@@ -1,8 +1,13 @@
 #pragma once
 
-#include "Components.h"
+#include "ComponentConditions.h"
 
 namespace Hazel {
+	
+	struct TransformComponent;
+	struct CameraComponent;
+	struct HierarchyComponent;
+	struct MaterialComponent;
 
 	class Entity {
 	private:
@@ -30,6 +35,7 @@ namespace Hazel {
 	public:
 		Entity();
 		Entity(Ref<entt::registry>& registry);
+		Entity(Ref<entt::registry>& registry, entt::entity id);
 		Entity(Ref<entt::registry>& registry, const std::string& name);
 
 		Entity(const Entity& other);
@@ -57,12 +63,15 @@ namespace Hazel {
 		}
 
 		template<typename COMPONENT>
-		inline COMPONENT* GetComponent()
+		inline COMPONENT& GetComponent()
 		{
-			COMPONENT* result = nullptr;
-			if ( m_Registry->any_of<COMPONENT>(m_ID) )
-				result = &m_Registry->get<COMPONENT>(m_ID);
-			return result;
+			return m_Registry->get<COMPONENT>(m_ID);
+		}
+		
+		template<typename... COMPONENTS>
+		inline bool HaveComponent() 
+		{
+			return m_Registry->all_of<COMPONENTS...>(m_ID);
 		}
 
 		inline entt::entity Raw() const { return m_ID; }
@@ -77,11 +86,11 @@ namespace Hazel {
 	public:
 		CameraEntity(Ref<entt::registry>& registry, const vec2& aspectRatio);
 		
-		inline void SetAspectRatio(const vec2& aspectRatio){ GetCamera().SetAspectRatio(aspectRatio); }
-		inline const mat4& GetViewProjectionMatrix() { return GetCamera().GetViewProjectionMatrix(); }
+		void SetAspectRatio(const vec2& aspectRatio);
+		const mat4& GetViewProjectionMatrix();
 
-		inline TransformComponent& GetTransform() { return m_Registry->get<TransformComponent>(m_ID); }
-		inline CameraComponent& GetCamera() { return m_Registry->get<CameraComponent>(m_ID); }
+		TransformComponent& GetTransform();
+		CameraComponent& GetCamera();
 	};
 
 }

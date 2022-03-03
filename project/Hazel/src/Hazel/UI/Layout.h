@@ -88,10 +88,10 @@ namespace Hazel {
 	};
 	
 	// ------------
-	// --- Snap ---
+	// --- EdgeSnap ---
 	// ------------
 
-	class Snap {
+	class EdgeSnap {
 		enum class Flag : uint8_t 
 		{
 			Left   = BIT(0),
@@ -103,11 +103,11 @@ namespace Hazel {
 		using Flags = Flags<Flag>;
 		using enum Flag;
 
-		Snap(Flags flags = Flags())
+		EdgeSnap(Flags flags = Flags())
 			: m_Flags(flags)
 		{}
 
-		Snap(Flag flag)
+		EdgeSnap(Flag flag)
 			: m_Flags(flag)
 		{}
 
@@ -149,19 +149,25 @@ namespace Hazel {
 		void SetSize(const vec2& size);
 		void SetPosition(const vec2& position);
 		void SetAnchor(Anchor anchor);
-		void SetAX(float value);
-		void SetAY(float value);
-		void SetBX(float value);
-		void SetBY(float value);
-		void SetSnap(Snap snap);
+		void SetEdgeSnap(EdgeSnap edgeSnap);
+
+		void UpdateChilds();
+		inline void ParentHasUpdated() { m_IsUpToDate = false; }
 
 		Rect GetRect() const;
 
 	private:
+		void UpdateResultRect() const;
+
+	private:
 		Rect m_Rect;
 		Anchor m_Anchor;
-		Snap m_Snap;
-		const Hierarchy* m_Hierarchy = nullptr;
+		EdgeSnap m_EdgeSnap;
+
+	private: // Hierarchy
+		Hierarchy* m_Hierarchy = nullptr;
+		mutable Rect m_ResultRect;
+		mutable bool m_IsUpToDate = false;
 	};
 	
 	// ------------------------

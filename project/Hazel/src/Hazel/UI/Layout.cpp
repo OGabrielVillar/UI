@@ -13,47 +13,48 @@ namespace Hazel {
 	void Layout::SetSize(const vec2& size)
 	{
 		m_Rect.SetSize(size);
+		UpdateChilds();
 	}
 
 	void Layout::SetPosition(const vec2& position)
 	{
 		m_Rect.SetPosition(position);
+		UpdateChilds();
 	}
 
 	void Layout::SetAnchor(Anchor anchor)
 	{
 		m_Anchor = anchor;
+		UpdateChilds();
 	}
 
-	void Layout::SetAX(float value)
+	void Layout::SetEdgeSnap(EdgeSnap edgeSnap)
 	{
-		m_Rect.a_x = value;
+		m_EdgeSnap = edgeSnap;
+		UpdateChilds();
 	}
 
-	void Layout::SetAY(float value)
+	void Layout::UpdateChilds()
 	{
-		m_Rect.a_y = value;
-	}
-
-	void Layout::SetBX(float value)
-	{
-		m_Rect.b_x = value;
-	}
-
-	void Layout::SetBY(float value)
-	{
-		m_Rect.b_y = value;
-	}
-
-	void Layout::SetSnap(Snap snap)
-	{
-		m_Snap = snap;
+		if (m_IsUpToDate)
+			m_Hierarchy->BottomToTop([](Entity ent) {
+				ent.HaveComponent<LayoutComponent>();
+					ent.GetComponent<LayoutComponent>().ParentHasUpdated();
+			});
 	}
 
 	Rect Layout::GetRect() const
 	{
+		if (!m_IsUpToDate)
+			UpdateResultRect();
 
+		return m_ResultRect;
+	}
+
+	void Layout::UpdateResultRect() const
+	{
 		if (m_Hierarchy) {
+
 			Rect parentRect;
 
 			auto* parentLayout = m_Hierarchy->GetParent<LayoutComponent>();
@@ -65,7 +66,7 @@ namespace Hazel {
 
 			vec2 shift(0.f);
 
-			Rect result = m_Rect;
+			m_ResultRect = m_Rect;
 
 			// TODO: Inherit Option
 
@@ -97,21 +98,24 @@ namespace Hazel {
 			else if (m_Anchor.IsTo(Anchor::Y::Bottom))
 				shift.y += parentRect.b_y;
 
-			result += shift;
+			m_ResultRect += shift;
 
-			if (m_Snap.IsSnappingTo(Snap::Left))
-				result.a_x = parentRect.a_x;
-			if (m_Snap.IsSnappingTo(Snap::Right))
-				result.b_x = parentRect.b_x;
-			if (m_Snap.IsSnappingTo(Snap::Top))
-				result.a_y = parentRect.a_y;
-			if (m_Snap.IsSnappingTo(Snap::Bottom))
-				result.b_y = parentRect.b_y;
+			if (m_EdgeSnap.IsSnappingTo(EdgeSnap::Left))
+				m_ResultRect.a_x = parentRect.a_x;
+			if (m_EdgeSnap.IsSnappingTo(EdgeSnap::Right))
+				m_ResultRect.b_x = parentRect.b_x;
+			if (m_EdgeSnap.IsSnappingTo(EdgeSnap::Top))
+				m_ResultRect.a_y = parentRect.a_y;
+			if (m_EdgeSnap.IsSnappingTo(EdgeSnap::Bottom))
+				m_ResultRect.b_y = parentRect.b_y;
 
-			return result;
+		} else {
+
+			m_ResultRect = m_Rect;
+
 		}
 
-		return m_Rect;
+		m_IsUpToDate = true;
 
 	}
 
