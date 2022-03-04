@@ -43,12 +43,17 @@ namespace Hazel {
 			});
 	}
 
-	Rect Layout::GetRect() const
+	const Rect& Layout::GetRect() const
 	{
 		if (!m_IsUpToDate)
 			UpdateResultRect();
 
 		return m_ResultRect;
+	}
+
+	const Rect& Layout::GetRawRect() const
+	{
+		return m_Rect;
 	}
 
 	void Layout::UpdateResultRect() const

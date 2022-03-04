@@ -6,6 +6,47 @@
 
 namespace Hazel {
 
+	UILayer::UILayer(const Ref<entt::registry>& registry, entt::entity id)
+		: m_ID(id),
+		m_Registry(registry)
+	{
+		auto& commandCard = m_Registry->get<CommandCardComponent>(m_ID);
+		
+		Ref<Command> cmd;
+		
+		cmd = commandCard.AddCommand();
+		cmd->SetFunction<EventCursorPosition>([this](const EventCursorPosition* event)
+		{
+			m_CursorPosition = event->position;
+			return false;
+		});
+		cmd->AddTrigger(EventCursorPosition());
+		
+		cmd = commandCard.AddCommand();
+		cmd->SetFunction<EventMouseButton>([this](const EventMouseButton* event)
+		{
+			auto& hierarchy = m_Registry->get<HierarchyComponent>(m_ID);
+
+			return hierarchy.TopToBottomBool([this](Entity entity)
+			{
+				if (entity.HaveComponent<LayoutComponent>()) {
+					auto& layout = entity.GetComponent<LayoutComponent>();
+
+					if ( HitTest((vec2)m_CursorPosition, layout.GetRect())) {
+
+						if (entity.HaveComponent<InformationComponent>()) {
+							auto& info = entity.GetComponent<InformationComponent>();
+							std::cout << info.GetName() << std::endl;
+							return true;
+						}
+					}
+				}
+				return false;
+			});
+		});
+		cmd->AddTrigger(EventMouseButton(Mouse::Button::Left, Mouse::Action::Release));
+	}
+
 	Entity UILayer::NewElement(const std::string& name)
 	{
 		Entity element(m_Registry, name);
@@ -32,6 +73,11 @@ namespace Hazel {
 		}
 
 		return element;
+	}
+
+	Entity UILayer::NewSpace(const std::string& name)
+	{
+		return NewElement(name); 
 	}
 
 	Entity UILayer::NewFrame(const std::string& name)

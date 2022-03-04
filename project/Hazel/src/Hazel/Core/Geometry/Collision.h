@@ -1,20 +1,20 @@
 #pragma once
 #include "Rect.h"
 
-namespace Hazel::Geometry {
+namespace Hazel {
 
 	template <typename T>
-	_NODISCARD constexpr bool HitTest(const Template::Rect<T>& a, const Template::Rect<T>& b) {
+	constexpr bool HitTest(const Geometry::Template::AABBRect<T>& a, const Geometry::Template::AABBRect<T>& b) {
 
-		const T a_t = a.y;
-		const T a_l = a.x;
-		const T a_b = a.y + a.height;
-		const T a_r = a.x + a.width;
+		const T a_l = a.a_x;
+		const T a_t = a.a_y;
+		const T a_r = a.b_x;
+		const T a_b = a.b_y;
 
-		const T b_t = b.y;
-		const T b_l = b.x;
-		const T b_b = b.y + b.height;
-		const T b_r = b.x + b.width;
+		const T b_l = b.a_x;
+		const T b_t = b.a_y;
+		const T b_r = b.b_x;
+		const T b_b = b.b_y;
 
 		if (a_l > b_r)
 			return false;
@@ -28,14 +28,19 @@ namespace Hazel::Geometry {
 		return true;
 	}
 
+	template <typename T>
+	constexpr bool HitTest(const glm::vec<2,T>& a, const Geometry::Template::AABBRect<T>& rect) {
+
+		if (a.x < rect.a_x)
+			return false;
+		if (a.x > rect.b_x)
+			return false;
+		if (a.y < rect.a_y)
+			return false;
+		if (a.y > rect.b_y)
+			return false;
+
+		return true;
+	}
+
 }
-
-
-//if (aTL_in.x > bBR_in.x)
-//return false;
-//if (aBR_in.x < bTL_in.x)
-//	return false;
-//if (aTL_in.y > bBR_in.y)
-//return false;
-//if (aBR_in.y < bTL_in.y)
-//	return false;

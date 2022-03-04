@@ -49,23 +49,11 @@ namespace Hazel {
 
 		bool MoveUnder(entt::entity move_entity, entt::entity under_entity);
 
-		void TopToBottom(const std::function<void(Entity)>& function);
+		void TopToBottom(const std::function<void(const Entity&)>& function);
+		bool TopToBottomBool(const std::function<bool(const Entity&)>& function);
 
-		//template<typename ... COMPONENT>
-		//void TopToBottomComponent(const std::function<void(COMPONENT&...)>& function)
-		//{
-		//	for ( auto iterator = m_Childs.rbegin(); iterator != m_Childs.rend(); iterator++)
-		//	{
-		//		auto child = *iterator;
-		//
-		//		if (m_Registry->all_of<HierarchyComponent, COMPONENT...>(child))
-		//			m_Registry->get<HierarchyComponent>(child).TopToBottomComponent<COMPONENT...>(function);
-		//	}
-		//	if (m_Registry->all_of<COMPONENT...>(m_ID))
-		//		function(m_Registry->get<COMPONENT...>(m_ID));
-		//}
-
-		void BottomToTop(const std::function<void(Entity)>& function);
+		void BottomToTop(const std::function<void(const Entity&)>& function);
+		bool BottomToTopBool(const std::function<bool(const Entity&)>& function);
 
 		template<typename COMPONENT>
 		COMPONENT* GetParent() const

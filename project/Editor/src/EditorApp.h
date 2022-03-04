@@ -34,7 +34,7 @@ private:// Shit
 	Hazel::Ref<Hazel::Texture> m_Texture;
 	Hazel::Ref<Hazel::Texture> m_Texture2;
 
-	Hazel::Rect m_Rect = Hazel::Rect::XYWH(500.f,50.f,370.f,170.f);
+	Hazel::Rect m_Rect = Hazel::Rect::XYWH(500.f,50.f,500.f,500.f);
 	Hazel::vec2 m_TextureSize = { 500.f, 500.f };
 	Hazel::vec2 m_TexturePosition = { 0.f, 0.f };
 	bool m_IsMoving = false;

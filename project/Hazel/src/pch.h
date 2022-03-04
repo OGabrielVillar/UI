@@ -63,6 +63,7 @@
 #include "Core/Geometry/Angle.h"
 #include "Core/Geometry/Circle.h"
 #include "Core/Geometry/Transformation.h"
+#include "Core/Geometry/Collision.h"
 
 #include "Core/Using.h"
 

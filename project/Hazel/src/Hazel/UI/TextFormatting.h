@@ -12,7 +12,7 @@ namespace Hazel {
 			LeftCenter   = (uint8_t)Anchor::LeftCenter,
 			LeftBottom   = (uint8_t)Anchor::LeftBottom,
 			CenterTop    = (uint8_t)Anchor::CenterTop,
-			CenterCenter = (uint8_t)Anchor::CenterCenter,
+			Center       = (uint8_t)Anchor::Center,
 			CenterBottom = (uint8_t)Anchor::CenterBottom,
 			RightTop     = (uint8_t)Anchor::RightTop,
 			RightCenter  = (uint8_t)Anchor::RightCenter,

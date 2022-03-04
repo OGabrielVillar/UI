@@ -77,7 +77,7 @@ namespace Hazel {
 		inline entt::entity Raw() const { return m_ID; }
 
 	protected:
-		entt::entity m_ID;
+		entt::entity m_ID = entt::null;
 		Ref<entt::registry> m_Registry;
 	};
 

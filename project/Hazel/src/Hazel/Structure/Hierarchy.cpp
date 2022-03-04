@@ -186,7 +186,7 @@ namespace Hazel {
 		return false;
 	}
 
-	void Hierarchy::TopToBottom(const std::function<void(Entity)>& function)
+	void Hierarchy::TopToBottom(const std::function<void(const Entity&)>& function)
 	{
 		for ( auto iterator = m_Childs.rbegin(); iterator != m_Childs.rend(); iterator++)
 		{
@@ -198,7 +198,19 @@ namespace Hazel {
 		function({m_Registry, m_ID});
 	}
 
-	void Hierarchy::BottomToTop(const std::function<void(Entity)>& function)
+	bool Hierarchy::TopToBottomBool(const std::function<bool(const Entity&)>& function)
+	{
+		for ( auto iterator = m_Childs.rbegin(); iterator != m_Childs.rend(); iterator++)
+		{
+			auto child = *iterator;
+
+			if (m_Registry->any_of<HierarchyComponent>(child))
+				if (m_Registry->get<HierarchyComponent>(child).TopToBottomBool(function)) return true;
+		}
+		return function({m_Registry, m_ID});
+	}
+
+	void Hierarchy::BottomToTop(const std::function<void(const Entity&)>& function)
 	{
 		function({m_Registry, m_ID});
 		for ( auto child : m_Childs )
@@ -206,6 +218,17 @@ namespace Hazel {
 			if (m_Registry->any_of<HierarchyComponent>(child))
 				m_Registry->get<HierarchyComponent>(child).BottomToTop(function);
 		}
+	}
+
+	bool Hierarchy::BottomToTopBool(const std::function<bool(const Entity&)>& function)
+	{
+		if (function({m_Registry, m_ID})) return true;
+		for ( auto child : m_Childs )
+		{
+			if (m_Registry->any_of<HierarchyComponent>(child))
+				if (m_Registry->get<HierarchyComponent>(child).BottomToTopBool(function)) return true;
+		}
+		return false;
 	}
 
 }

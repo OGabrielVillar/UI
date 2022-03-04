@@ -8,13 +8,12 @@ namespace Hazel {
 	class UILayer {
 
 	public:
-		UILayer(const Ref<entt::registry>& registry, entt::entity id)
-		  : m_ID(id),
-			m_Registry(registry)
-		{}
+		UILayer(const Ref<entt::registry>& registry, entt::entity id);
 
+		Entity NewSpace(const std::string& name);
 		Entity NewFrame(const std::string& name);
 		Entity NewViewport(const std::string& name);
+		Entity NewDockingSpace(const std::string& name);
 
 		void SetSize(const vec2& size);
 		void SetPosition(const vec2& position);
@@ -37,6 +36,8 @@ namespace Hazel {
 		entt::entity m_WorkingEntity = entt::null;
 		entt::entity m_History[90] {entt::null};
 		int m_HistoryIndex = 0;
+
+		vec2int m_CursorPosition;
 	};
 
 

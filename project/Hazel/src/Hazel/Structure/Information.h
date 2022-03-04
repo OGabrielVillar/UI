@@ -9,6 +9,9 @@ namespace Hazel {
 	public:
 		Information(const std::string& name, UUID::Type type = UUID::Type::Asset);
 
+		inline const std::string& GetName() { return name; }
+		inline const UUID& GetUUID() { return uuid; }
+
 	private:
 		std::string name;
 		UUID uuid;

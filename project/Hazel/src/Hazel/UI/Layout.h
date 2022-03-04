@@ -49,7 +49,7 @@ namespace Hazel {
 			LeftCenter   = (uint8_t)X::Left   | (uint8_t)Y::Center,
 			LeftBottom   = (uint8_t)X::Left   | (uint8_t)Y::Bottom,
 			CenterTop    = (uint8_t)X::Center | (uint8_t)Y::Top,
-			CenterCenter = (uint8_t)X::Center | (uint8_t)Y::Center,
+			Center       = (uint8_t)X::Center | (uint8_t)Y::Center,
 			CenterBottom = (uint8_t)X::Center | (uint8_t)Y::Bottom,
 			RightTop     = (uint8_t)X::Right  | (uint8_t)Y::Top,
 			RightCenter  = (uint8_t)X::Right  | (uint8_t)Y::Center,
@@ -154,7 +154,8 @@ namespace Hazel {
 		void UpdateChilds();
 		inline void ParentHasUpdated() { m_IsUpToDate = false; }
 
-		Rect GetRect() const;
+		const Rect& GetRect() const;
+		const Rect& GetRawRect() const;
 
 	private:
 		void UpdateResultRect() const;

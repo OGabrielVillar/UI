@@ -64,38 +64,77 @@ void EditorApp::InitShit()
 
 		auto& ui = m_UILayer.GetComponent<UILayerComponent>();
 
-		ui.NewFrame("TitleBar"); {
-			ui.SetSize({1920.f,30.f});
+		// --- Bottom Background ---
+		ui.NewSpace("BottomBackground"); {
+			ui.SetSize({24.f,24.f});
+			ui.SetPosition({0.f,48.f});
 			ui.SetAnchor({Anchor::LeftTop, Anchor::LeftTop});
-			ui.SetEdgeSnap(EdgeSnap::Right);
-			ui.GetMaterial().SetColor(to_rgb({36,36,38,255}));
+			ui.SetEdgeSnap(EdgeSnap::Right | EdgeSnap::Bottom);
 
-			ui.NewFrame("CloseButton"); { 
-				ui.SetSize({50.f,50.f});
-				ui.SetAnchor({Anchor::RightCenter, Anchor::RightCenter});
-				ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
-
-				ui.NewFrame("MinimizeButton"); { 
-					ui.SetSize({50.f,50.f});
-					ui.SetAnchor({Anchor::RightCenter, Anchor::LeftCenter});
-					ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
+			// --- Docking Space ---
+			ui.NewFrame("DockingSpace"); {
+				ui.SetSize({24.f,24.f});
+				ui.SetPosition({0.f,-19.f});
+				ui.SetAnchor({Anchor::LeftBottom, Anchor::LeftBottom});
+				ui.SetEdgeSnap(EdgeSnap::Right | EdgeSnap::Top);
+				ui.GetMaterial().SetColor(to_rgb({19,19,21,255}));
+				
+				// --- Viewport ---
+				m_Viewport = CreateReference<Entity>(ui.NewViewport("Viewport")); { 
+					ui.SetSize(m_Rect.size());
+					ui.SetAnchor({ Anchor::RightTop, Anchor::RightTop });
+					m_Viewport->GetComponent<ViewportComponent>().SetScene(*m_ViewportScene);
 				} ui.Close();
 
-			} ui.Close(); 
+			} ui.Close();
 
-			m_Movable = ui.NewFrame("TitleLabel"); {
-				ui.SetSize({50.f,50.f});
-				ui.SetAnchor({Anchor::CenterTop, Anchor::CenterTop});
-				ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
-
+			// --- Info Bar ---
+			ui.NewFrame("Info Bar"); {
+				ui.SetSize({24.f,19.f});
+				ui.SetAnchor({Anchor::LeftBottom, Anchor::LeftBottom});
+				ui.SetEdgeSnap(EdgeSnap::Right);
+				ui.GetMaterial().SetColor(to_rgb({46,46,48,255}));
+			
 			} ui.Close();
 
 		} ui.Close();
 
-		m_Viewport = CreateReference<Entity>(ui.NewViewport("Viewport")); { 
-			ui.SetSize({ 370.f,170.f });
-			ui.SetAnchor({ Anchor::RightBottom, Anchor::RightBottom });
-			m_Viewport->GetComponent<ViewportComponent>().SetScene(*m_ViewportScene);
+		// --- Tool Bar ---
+		ui.NewFrame("ToolBar"); {
+			ui.SetSize({24.f,24.f});
+			ui.SetPosition({0.f,24.f});
+			ui.SetAnchor({Anchor::LeftTop, Anchor::LeftTop});
+			ui.SetEdgeSnap(EdgeSnap::Right);
+			ui.GetMaterial().SetColor(to_rgb({36,36,38,255}));
+		
+		} ui.Close();
+		
+		// --- Title Bar ---
+		ui.NewFrame("TitleBar"); {
+			ui.SetSize({24.f,24.f});
+			ui.SetAnchor({Anchor::LeftTop, Anchor::LeftTop});
+			ui.SetEdgeSnap(EdgeSnap::Right);
+			ui.GetMaterial().SetColor(to_rgb({36,36,38,255}));
+		
+			ui.NewFrame("CloseButton"); { 
+				ui.SetSize({50.f,24.f});
+				ui.SetAnchor({Anchor::RightCenter, Anchor::RightCenter});
+				ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
+		
+				ui.NewFrame("MinimizeButton"); { 
+					ui.SetSize({50.f,24.f});
+					ui.SetAnchor({Anchor::RightCenter, Anchor::LeftCenter});
+					ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
+				} ui.Close();
+		
+			} ui.Close(); 
+		
+			m_Movable = ui.NewFrame("TitleLable"); { 
+				ui.SetSize({50.f,24.f});
+				ui.SetAnchor({Anchor::Center, Anchor::Center});
+				ui.GetMaterial().SetColor(to_rgb({64,64,69,255}));
+			} ui.Close();
+			
 		} ui.Close();
 
 	}
@@ -112,18 +151,24 @@ void EditorApp::InitShit()
 			cmd = commandCard->AddCommand();
 			cmd->SetFunction([this]() 
 			{
-				m_Movable.GetComponent<LayoutComponent>().SetPosition({90.f,0.f});
+				if (m_Movable.Raw() != entt::null) {
+					auto& layout = m_Movable.GetComponent<LayoutComponent>();
+					layout.SetPosition(layout.GetRawRect().a() + vec2(3000.f * m_dt,0.f));
+				}
 				return true;
 			});
-			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::Right, Keyboard::Action::Release));
+			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::Right, Keyboard::Action::Repeat));
 		
 			cmd = commandCard->AddCommand();
 			cmd->SetFunction([this]() 
 			{
-				m_Movable.GetComponent<LayoutComponent>().SetPosition({-90.f,0.f});
+				if (m_Movable.Raw() != entt::null) {
+					auto& layout = m_Movable.GetComponent<LayoutComponent>();
+					layout.SetPosition(layout.GetRawRect().a() + vec2(-3000.f * m_dt,0.f));
+				}
 				return true;
 			});
-			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::Left, Keyboard::Action::Release));
+			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::Left, Keyboard::Action::Repeat));
 		
 			cmd = commandCard->AddCommand();
 			cmd->SetFunction([this]() 
@@ -144,15 +189,6 @@ void EditorApp::InitShit()
 			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::F8, Keyboard::Action::Release));
 		
 		
-			cmd = commandCard->AddCommand();
-			cmd->SetFunction<EventCursorPosition>([this](const EventCursorPosition* event) 
-			{
-				m_TexturePosition = event->position;
-				return true;
-			});
-			cmd->AddTrigger(EventCursorPosition());
-
-
 			cmd = commandCard->AddCommand();
 			cmd->SetFunction<EventMouseScroll>([this](const EventMouseScroll* event) 
 			{

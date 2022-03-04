@@ -44,6 +44,7 @@ namespace Hazel {
 	Entity Project::CreateUILayer(const std::string& name)
 	{
 		auto ent = Entity(m_Registry, name);
+		ent.AddComponent<CommandCardComponent>();
 		ent.AddComponent<UILayerComponent>(m_Registry, ent.Raw());
 		auto hierarchy = ent.AddComponent<HierarchyComponent>(m_Registry, ent.Raw());
 		ent.AddComponent<LayoutComponent>()->SetHierarchy(*hierarchy);
