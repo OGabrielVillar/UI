@@ -207,26 +207,36 @@ namespace Hazel {
 		m_Context->SwapBuffers();
 	}
 	
-	void Window::SetPosition(int width, int height)
+	void Window::Maximize()
 	{
-		vec2int resolutionCap = m_MonitorResolution - 50;
-		int w, h;
+		glfwMaximizeWindow(m_Window);
+	}
 
-		if (width > resolutionCap.x)
-			w = resolutionCap.x;
-		else if (width < 0)
-			w = 0;
-		else
-			w = width;
+	void Window::Restore()
+	{
+		glfwRestoreWindow(m_Window);
+	}
 
-		if (height > resolutionCap.y)
-			h = resolutionCap.y;
-		else if (height < 0)
-			h = 0;
-		else
-			h = height;
+	void Window::SetPosition(int x, int y)
+	{
+		//vec2int resolutionCap = m_MonitorResolution - 50;
+		//int w, h;
 
-		glfwSetWindowPos(m_Window, w, h);
+		//if (width > resolutionCap.x)
+		//	w = resolutionCap.x;
+		//else if (width < 0)
+		//	w = 0;
+		//else
+		//	w = width;
+		//
+		//if (height > resolutionCap.y)
+		//	h = resolutionCap.y;
+		//else if (height < 0)
+		//	h = 0;
+		//else
+		//	h = height;
+
+		glfwSetWindowPos(m_Window, x, y);
 	}
 
 	void Window::SetSize(int width, int height)

@@ -13,6 +13,7 @@
 #include "Structure/Camera.h"
 #include "Structure/Canvas.h"
 
+#include "UI/WindowHandle.h"
 #include "UI/Viewport.h"
 #include "UI/UILayer.h"
 
@@ -84,9 +85,18 @@ namespace Hazel
 		{ return *this; }
 	};
 
-	struct ViewportComponent : Viewport {
+	struct ViewportComponent : public Viewport {
 	public:
 		ViewportComponent() {}
+
+		REQUIRES(LayoutComponent);
+	};
+
+	struct WindowHandleComponent : public WindowHandle {
+	public:
+		WindowHandleComponent( Window& window ) 
+			: WindowHandle(window)
+		{}
 
 		REQUIRES(LayoutComponent);
 	};

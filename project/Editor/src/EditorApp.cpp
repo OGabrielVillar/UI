@@ -1,6 +1,6 @@
 #include <Hazel.h>
-
 #include "EditorApp.h"
+
 #include "Platform/OpenGL/OpenGLShader.h"
 
 EditorApp::EditorApp(const std::string& name, Hazel::Window::Flags flags) 
@@ -14,6 +14,8 @@ void EditorApp::OnInit()
 	
 bool EditorApp::OnEvent(const Hazel::Event& event)
 {
+	using namespace Hazel;
+
 	return m_Project.OnEvent(event);
 }
 
@@ -50,7 +52,7 @@ void EditorApp::InitShit()
 	m_ViewportScene->GetComponent<SceneComponent>().SetCamera(m_ViewportCamera);
 
 	auto commandCardEntity = m_Project.CreateEntity("Command Card");
-	auto commandCard = commandCardEntity.AddComponent<CommandCardComponent>();
+	auto cc = commandCardEntity.AddComponent<CommandCardComponent>();
 	
 	m_UILayer.GetComponent<LayoutComponent>().SetSize((vec2)m_Window->GetResolution());
 
@@ -106,6 +108,7 @@ void EditorApp::InitShit()
 			ui.SetAnchor({Anchor::LeftTop, Anchor::LeftTop});
 			ui.SetEdgeSnap(EdgeSnap::Right);
 			ui.GetMaterial().SetColor(to_rgb({36,36,38,255}));
+			ui.SetWindowHandlePosition(*m_Window);
 		
 		} ui.Close();
 		
@@ -115,6 +118,7 @@ void EditorApp::InitShit()
 			ui.SetAnchor({Anchor::LeftTop, Anchor::LeftTop});
 			ui.SetEdgeSnap(EdgeSnap::Right);
 			ui.GetMaterial().SetColor(to_rgb({36,36,38,255}));
+			ui.SetWindowHandlePosition(*m_Window);
 		
 			ui.NewFrame("CloseButton"); { 
 				ui.SetSize({50.f,24.f});
@@ -146,68 +150,22 @@ void EditorApp::InitShit()
 		{
 			PROFILE("Init Commands");
 		
-			Ref<Command> cmd;
-
-			cmd = commandCard->AddCommand();
-			cmd->SetFunction([this]() 
-			{
-				if (m_Movable.Raw() != entt::null) {
-					auto& layout = m_Movable.GetComponent<LayoutComponent>();
-					layout.SetPosition(layout.GetRawRect().a() + vec2(3000.f * m_dt,0.f));
-				}
-				return true;
-			});
-			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::Right, Keyboard::Action::Repeat));
+			cc->AddCommand(BIND_FN(EditorApp::OnLeft));
+			cc->AddTrigger({Keyboard::Key::Left, Keyboard::Action::Repeat});
+			cc->AddCommand(BIND_FN(EditorApp::OnRight));
+			cc->AddTrigger({Keyboard::Key::Right, Keyboard::Action::Repeat});
 		
-			cmd = commandCard->AddCommand();
-			cmd->SetFunction([this]() 
-			{
-				if (m_Movable.Raw() != entt::null) {
-					auto& layout = m_Movable.GetComponent<LayoutComponent>();
-					layout.SetPosition(layout.GetRawRect().a() + vec2(-3000.f * m_dt,0.f));
-				}
-				return true;
-			});
-			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::Left, Keyboard::Action::Repeat));
+			cc->AddCommand(BIND_FN(EditorApp::ChangeInterpolation));
+			cc->AddTrigger({Keyboard::Key::Left, Keyboard::Action::Repeat});
 		
-			cmd = commandCard->AddCommand();
-			cmd->SetFunction([this]() 
-			{
-				m_Texture->SetInterpolation(m_Interpolation[m_InterpolationIndex]);
-				m_InterpolationIndex++;
-				m_InterpolationIndex %= 2;
-				return true;
-			});
-			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::F9, Keyboard::Action::Release));
+			cc->AddCommand(BIND_FN(EditorApp::ChangeInterpolation));
+			cc->AddTrigger({Keyboard::Key::F9});
 		
-			cmd = commandCard->AddCommand();
-			cmd->SetFunction([this]() 
-			{
-				PRINT_PROFILE();
-				return false;
-			});
-			cmd->AddTrigger(EventKeyboardKey(Keyboard::Key::F8, Keyboard::Action::Release));
+			cc->AddCommand(BIND_FN(EditorApp::PrintProfile));
+			cc->AddTrigger({Keyboard::Key::F8});
 		
-		
-			cmd = commandCard->AddCommand();
-			cmd->SetFunction<EventMouseScroll>([this](const EventMouseScroll* event) 
-			{
-				m_ViewportCamera->GetTransform().Scale(1.f - (0.1f * event->offset.y));
-				return true;
-			});
-			cmd->AddTrigger(EventMouseScroll());
-
-
-			cmd = commandCard->AddCommand();
-			cmd->SetFunction<EventWindowSize>([this](const EventWindowSize* event) 
-			{
-				vec2 resolution = (vec2)event->size;
-				vec2 aspectRatio (resolution / resolution.y);
-				m_Camera->SetAspectRatio(aspectRatio);
-				m_UILayer.GetComponent<LayoutComponent>().SetSize((vec2)event->size);
-				return true;
-			});
-			cmd->AddTrigger(EventWindowSize());
+			cc->AddCommand(BIND_FN(EditorApp::ResizeWindow));
+			cc->AddCommand(BIND_FN(EditorApp::MouseScroll));
 		}//*/
 
 		// --- Texture
@@ -264,4 +222,59 @@ void EditorApp::TestShit()
 
 	Renderer::EndScene();
 	// ---------------------
+}
+
+bool EditorApp::ResizeWindow(const Hazel::EventWindowSize* event)
+{
+	using namespace Hazel;
+
+	vec2 resolution = (vec2)event->size;
+	vec2 aspectRatio (resolution / resolution.y);
+	m_Camera->SetAspectRatio(aspectRatio);
+	m_UILayer.GetComponent<LayoutComponent>().SetSize((vec2)event->size);
+	return true;
+}
+
+bool EditorApp::MouseScroll(const Hazel::EventMouseScroll* event)
+{
+	m_ViewportCamera->GetTransform().Scale(1.f - (0.1f * event->offset.y));
+	return false;
+}
+
+bool EditorApp::PrintProfile()
+{
+	using namespace Hazel;
+
+	PRINT_PROFILE();
+	return false;
+}
+
+bool EditorApp::ChangeInterpolation()
+{
+	m_Texture->SetInterpolation(m_Interpolation[m_InterpolationIndex]);
+	m_InterpolationIndex++;
+	m_InterpolationIndex %= 2;
+	return true;
+}
+
+bool EditorApp::OnLeft()
+{
+	using namespace Hazel;
+
+	if (m_Movable.Raw() != entt::null) {
+		auto& layout = m_Movable.GetComponent<LayoutComponent>();
+		layout.SetPosition(layout.GetRawRect().a() + vec2(-3000.f * m_dt,0.f));
+	}
+	return true;
+}
+
+bool EditorApp::OnRight()
+{
+	using namespace Hazel;
+
+	if (m_Movable.Raw() != entt::null) {
+		auto& layout = m_Movable.GetComponent<LayoutComponent>();
+		layout.SetPosition(layout.GetRawRect().a() + vec2(3000.f * m_dt,0.f));
+	}
+	return true;
 }

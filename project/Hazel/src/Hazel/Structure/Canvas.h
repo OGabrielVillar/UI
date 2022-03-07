@@ -18,7 +18,8 @@ namespace Hazel
 			m_Framebuffer(Framebuffer::Create((uint32_t)width, (uint32_t)height, channels))
 		{}
 		//const intRect& GetFrame() { return m_Frame; }
-		vec2int GetSize() const { return m_Rect.size(); }
+		const vec2int& GetSize() const { return m_Rect.size(); }
+		const vec2int& GetPosition() const { return m_Rect.a(); }
 		int GetWidth() const { return m_Rect.width(); }
 		int GetHeight() const { return m_Rect.height(); }
 		const intRect& GetLayout() const { return m_Rect; }

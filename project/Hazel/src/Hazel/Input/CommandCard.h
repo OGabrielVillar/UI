@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include "Input/Command.h"
 
 namespace Hazel {
@@ -10,17 +9,22 @@ namespace Hazel {
 		inline bool OnEvent(const Event& event) 
 		{ 
 			for (auto& command : m_Commands)
-				if (command->Handle(event)) 
+				if (command.Handle(event)) 
 					return true;			
 			return false; 
 		}
-		inline Ref<Command> AddCommand()
+		template<typename ... Args>
+		inline Command& AddCommand(Args ... args)
 		{
-			m_Commands.push_back(CreateReference<Command>());
+			m_Commands.emplace_back(std::forward<Args>(args)...);
 			return m_Commands.back();
 		}
+		inline void AddTrigger(const Trigger& trigger)
+		{
+			m_Commands.back().AddTrigger(trigger);
+		}
 	 private:
-		std::vector<Ref<Command>> m_Commands;
+		std::vector<Command> m_Commands;
 	};
 
 }

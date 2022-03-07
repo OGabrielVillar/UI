@@ -10,41 +10,15 @@ namespace Hazel {
 		: m_ID(id),
 		m_Registry(registry)
 	{
-		auto& commandCard = m_Registry->get<CommandCardComponent>(m_ID);
+		auto& cc = m_Registry->get<CommandCardComponent>(m_ID);
 		
-		Ref<Command> cmd;
-		
-		cmd = commandCard.AddCommand();
-		cmd->SetFunction<EventCursorPosition>([this](const EventCursorPosition* event)
-		{
-			m_CursorPosition = event->position;
-			return false;
-		});
-		cmd->AddTrigger(EventCursorPosition());
-		
-		cmd = commandCard.AddCommand();
-		cmd->SetFunction<EventMouseButton>([this](const EventMouseButton* event)
-		{
-			auto& hierarchy = m_Registry->get<HierarchyComponent>(m_ID);
+		cc.AddCommand(BIND_FN(UILayer::OnCursorMovement));
 
-			return hierarchy.TopToBottomBool([this](Entity entity)
-			{
-				if (entity.HaveComponent<LayoutComponent>()) {
-					auto& layout = entity.GetComponent<LayoutComponent>();
+		cc.AddCommand(BIND_FN(UILayer::OnClick));
+		cc.AddTrigger({Mouse::Button::Left, Mouse::Action::Press});
 
-					if ( HitTest((vec2)m_CursorPosition, layout.GetRect())) {
-
-						if (entity.HaveComponent<InformationComponent>()) {
-							auto& info = entity.GetComponent<InformationComponent>();
-							std::cout << info.GetName() << std::endl;
-							return true;
-						}
-					}
-				}
-				return false;
-			});
-		});
-		cmd->AddTrigger(EventMouseButton(Mouse::Button::Left, Mouse::Action::Release));
+		cc.AddCommand(BIND_FN(UILayer::OnClickRelease));
+		cc.AddTrigger({Mouse::Button::Left, Mouse::Action::Release});
 	}
 
 	Entity UILayer::NewElement(const std::string& name)
@@ -118,9 +92,75 @@ namespace Hazel {
 		m_Registry->get<LayoutComponent>(m_History[m_HistoryIndex]).SetEdgeSnap(snap);
 	}
 
+	void UILayer::SetWindowHandlePosition(Window& window)
+	{
+		m_Registry->emplace<WindowHandleComponent>(m_History[m_HistoryIndex], window);
+	}
+
 	MaterialComponent& UILayer::GetMaterial()
 	{
 		return m_Registry->get<MaterialComponent>(m_History[m_HistoryIndex]);
+	}
+
+	bool UILayer::OnClick()
+	{
+		auto& hierarchy = m_Registry->get<HierarchyComponent>(m_ID);
+
+		return hierarchy.TopToBottomBool([this](Entity entity)
+		{
+			if (entity.HaveComponent<LayoutComponent>()) {
+				auto& layout = entity.GetComponent<LayoutComponent>();
+
+				bool hitTest = HitTest((vec2)m_CursorPosition, layout.GetRect());
+				if ( hitTest ) {
+					// Print names.
+					if (entity.HaveComponent<InformationComponent>()) {
+						auto& info = entity.GetComponent<InformationComponent>();
+						std::cout << info.GetName() << std::endl;
+					}
+					// Drag window.
+					if (entity.HaveComponent<WindowHandleComponent>()) {
+						entity.GetComponent<WindowHandleComponent>().OnLeftPress((int)m_CursorPosition.x,(int)m_CursorPosition.y);
+						m_IsDragging = true;
+						m_DraggingID = entity.Raw();
+					}
+					return true;
+				}
+			}
+			return false;
+		});
+	}
+
+	bool UILayer::OnClickRelease()
+	{
+		if (m_IsDragging) {
+			if (m_Registry->any_of<WindowHandleComponent>(m_DraggingID))
+				m_Registry->get<WindowHandleComponent>(m_DraggingID).OnLeftRelease((int)m_CursorPosition.x, (int)m_CursorPosition.y);
+			m_IsDragging = false;
+		}
+
+		return false;
+	}
+
+	bool UILayer::OnRightClick()
+	{
+		return false;
+	}
+
+	bool UILayer::OnDrag()
+	{
+		if (m_Registry->any_of<WindowHandleComponent>(m_DraggingID)) 
+			m_Registry->get<WindowHandleComponent>(m_DraggingID).OnDrag((int)m_CursorPosition.x, (int)m_CursorPosition.y);
+		
+		return false;
+	}
+
+	bool UILayer::OnCursorMovement(const EventCursorPosition* event)
+	{ 
+		m_CursorPosition = event->position; 
+		if (m_IsDragging)
+			return OnDrag();
+		return false; 
 	}
 
 	void UILayer::Close()

@@ -16,6 +16,18 @@ bool g_ApplicationRunning = true;
 int APP
 {
 
+#ifdef _CONSOLEAPP
+	std::cout << (R"(
+=================================================================
+|                                                               |
+|                       VOID GAME ENGINE                        |
+|                                                               |
+|                        version: 0.0.16                        |
+|                                                               |
+=================================================================
+	)") << std::endl;
+#endif
+
 	HZ_INIT_LOG;
 
 	Hazel::Application* app = Hazel::CreateApplication();
@@ -27,18 +39,15 @@ int APP
 	HZ_APP_INFO(R"(
 =================================================================
 |                                                               |
-|                                                               |
 |       [en] --- THANK YOU FOR TESTING OUT MY GAME! ---         |
-|                 Dream on, always!                             |
 |                                                               |
 |       [pt] --- OBRIGADO POR TESTAR MEU JOGO! ---              |
-|                 Sonhe, sempre!                                |
 |                                                               |
 |                                      by Gabriel Villar        |
 |                                          ig @_gvillar_        |
 |                                                               |
 =================================================================
-	)");
+(press any key to exit))");
 	std::cin.get();
 
 }

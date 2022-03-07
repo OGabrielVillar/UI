@@ -19,6 +19,13 @@ class EditorApp : public Hazel::Application {
 
 	void TestShit();
 
+	bool ResizeWindow(const Hazel::EventWindowSize* event);
+	bool MouseScroll(const Hazel::EventMouseScroll* event);
+	bool PrintProfile();
+	bool ChangeInterpolation();
+	bool OnLeft();
+	bool OnRight();
+
 private:// Shit
 	Hazel::Project m_Project;
 	Hazel::Ref<Hazel::CameraEntity> m_ViewportCamera;

@@ -2,6 +2,8 @@
 
 #include "Structure/Entity.h"
 #include "Layout.h"
+#include "Input/Event.h"
+#include "Run/Window.h"
 
 namespace Hazel {
 
@@ -19,7 +21,14 @@ namespace Hazel {
 		void SetPosition(const vec2& position);
 		void SetAnchor(Anchor anchor);
 		void SetEdgeSnap(EdgeSnap edgeSnap);
+		void SetWindowHandlePosition(Window& window);
 		MaterialComponent& GetMaterial();
+
+		bool OnClick();
+		bool OnClickRelease();
+		bool OnRightClick();
+		bool OnCursorMovement(const EventCursorPosition* event);
+		bool OnDrag();
 
 		void Close();
 
@@ -37,7 +46,10 @@ namespace Hazel {
 		entt::entity m_History[90] {entt::null};
 		int m_HistoryIndex = 0;
 
-		vec2int m_CursorPosition;
+	private:
+		entt::entity m_DraggingID = entt::null;
+		vec2int m_CursorPosition = { 0,0 };
+		bool m_IsDragging = false;
 	};
 
 
